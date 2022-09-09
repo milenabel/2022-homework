@@ -10,8 +10,8 @@ class Tree {
 
   constructor(json) {
     console.log(json)
-    let name = this.nodeName
-    let parentNode = this.parentName
+    var name = this.nodeName  //let?
+    var parentNode = this.parentName
   }
 
   /**

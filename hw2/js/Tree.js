@@ -5,8 +5,13 @@ class Tree {
    * Populates a single attribute that contains a list (array) of Node objects to be used by the other functions in this class
    * @param {json[]} json - array of json objects with name and parent fields
    */
-  constructor(json) {
 
+  //Add code that will create this list of `Node` objects based on the input. This is a good place to populate the `parentNode` field of the `Node` objects as well.
+
+  constructor(json) {
+    console.log(json)
+    let name = this.name
+    let parentNode = this.parent
   }
 
   /**
@@ -28,7 +33,7 @@ class Tree {
    * Recursive function that assign positions to each node
    */
   assignPosition (node, position) {
-
+    
   }
 
   /**

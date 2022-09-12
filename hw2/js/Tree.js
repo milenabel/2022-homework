@@ -7,28 +7,22 @@ class Tree {
    */
 
   //Add code that will create this list of `Node` objects based on the input. This is a good place to populate the `parentNode` field of the `Node` objects as well.
-
-
   constructor(json) {
-  // creating an array of objects by extracting it from json file
+  // creating an array of node objects by extracting it from json file
     this.nodeList = [];
     json.forEach(node => {
       //console.log(node)
       let newObj = new Node(node.name, node.parent);
-      newObj.parentNode = this.nodeList.find(element => element.name == newObj.parentName);
+      newObj.parentNode = this.nodeList.find(element => element.name == newObj.parentName);  //adding parent nodes 
       this.nodeList.push(newObj);
     });
-    console.log(this.nodeList);
+    //console.log(this.nodeList);
   } 
 
   /**
    * Function that builds a tree from a list of nodes with parent refs
    */
   buildTree() {
-    // note: in this function you will assign positions and levels by making calls to assignPosition() and assignLevel()
-    this.staticPos = 0;
-    this.mapPos = {};
-    
     // assigning children 
     this.nodeList.forEach(node => {
       for (let i=0; i<this.nodeList.length; i++)
@@ -36,9 +30,8 @@ class Tree {
           node.addChild(this.nodeList[i]);
     });
 
-    this.assignLevel(this.nodeList[0], 0);
-    this.mapPos[this.nodeList[0].level] = 0;
-    this.assignPosition(this.nodeList[0], 0);
+  	this.assignLevel(this.nodeList[0],0);     // calling on assignLevel function to register level
+    this.assignPosition(this.nodeList[0],0);  // calling on assignPosition function to register position
     //console.log(this.nodeList);
   }
 
@@ -55,21 +48,13 @@ class Tree {
    * Recursive function that assign positions to each node
    */
   assignPosition (node, position) {
-    this.staticPos = Math.max(this.staticPos, position);
+    let offset = 0;
     node.position = position;
-
-    if(node.children.length > 0){
-        this.assignPosition(node.children[0], position);
+    for (let i = 0; i < node.children.length; i++) {
+      if (i > 0) {offset = node.children[i-1].children.length;}
+      if (offset > 0) offset--; 
+      this.assignPosition(node.children[i], position + offset + i);
     }
-
-    for(let i = 1; i < node.children.length; i++){
-        if(this.staticPos > position){
-            this.assignPosition(node.children[i], this.staticPos + 1);
-        }
-        else{
-            this.assignPosition(node.children[i], position + 1);
-        }
-    } 
   }
 
   /**
@@ -79,31 +64,31 @@ class Tree {
   renderTree () {
 
     let selection = d3.select("body"); //select the entire body of the page
-      selection.append("svg")
+    selection.append("svg")
         .attr("height", 1200)
         .attr("width", 1200);
-      let svgBlock = d3.selectAll("svg");
-      let x_mult = 200, y_mult = 120, x_shift = 100, y_shift = 100;
+    let svgBlock = d3.selectAll("svg");
+    let x_mult = 200, y_mult = 120, x_shift = 100, y_shift = 100;  // initial starting point and shifts
       
     this.nodeList.forEach( node => {
-    node.children.forEach(nodec => {
-      svgBlock.append("line")
-      .attr("x1",x_mult*(node.level) + x_shift)
-      .attr("y1",y_mult*(node.position) + y_shift)
-      .attr("x2",x_mult*(nodec.level) + x_shift)
-      .attr("y2",y_mult*(nodec.position) + y_shift);
-    });
+      node.children.forEach(nodeN => {
+        svgBlock.append("line")  // creating lines
+        .attr("x1", x_mult*(node.level) + x_shift)
+        .attr("y1", y_mult*(node.position) + y_shift)
+        .attr("x2", x_mult*(nodeN.level) + x_shift)
+        .attr("y2", y_mult*(nodeN.position) + y_shift);
+      });
     
-    let node_group = svgBlock.append("g").attr("class","nodeGroup")
-      .attr("transform","translate("+x_mult*node.level+","+y_mult*node.position+")");
-      node_group.append("circle")
-        .attr("r",50)
-        .attr("cx",100)
-        .attr("cy",100);
-      node_group.append("text")
+      let node_group = svgBlock.append("g").attr("class","nodeGroup")
+        .attr("transform","translate(" + x_mult*node.level+"," + y_mult*node.position+")");
+      node_group.append("circle") // creating circles
+        .attr("r", 50)
+        .attr("cx", 100)
+        .attr("cy", 100);
+      node_group.append("text") // creating labels as text
         .attr("class", "label")
-        .attr("dx",x_shift)
-        .attr("dy",y_shift)
+        .attr("dx", x_shift)
+        .attr("dy", y_shift)
         .text(node.name);
     });
   }

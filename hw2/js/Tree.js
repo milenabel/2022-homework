@@ -63,23 +63,24 @@ class Tree {
    
   renderTree () {
 
-    let selection = d3.select("body"); //select the entire body of the page
-    selection.append("svg")
+    //let selection = d3.select("body"); //select the entire body of the page
+    d3.select("body").append("svg")
         .attr("height", 1200)
         .attr("width", 1200);
-    let svgBlock = d3.selectAll("svg");
+    //let svgBlock = d3.selectAll("svg");
     let x_mult = 200, y_mult = 120, x_shift = 100, y_shift = 100;  // initial starting point and shifts
       
     this.nodeList.forEach( node => {
       node.children.forEach(nodeN => {
-        svgBlock.append("line")  // creating lines
+        d3.selectAll("svg").append("line")  // creating lines
         .attr("x1", x_mult*(node.level) + x_shift)
         .attr("y1", y_mult*(node.position) + y_shift)
         .attr("x2", x_mult*(nodeN.level) + x_shift)
         .attr("y2", y_mult*(nodeN.position) + y_shift);
       });
     
-      let node_group = svgBlock.append("g").attr("class","nodeGroup")
+      let node_group = d3.selectAll("svg").append("g")
+        .attr("class","nodeGroup")
         .attr("transform","translate(" + x_mult*node.level+"," + y_mult*node.position+")");
       node_group.append("circle") // creating circles
         .attr("r", 50)

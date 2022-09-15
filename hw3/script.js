@@ -58,13 +58,13 @@ function update (data) {
     .nice();
 
   let yScale = d3
-  .scaleLinear()
-  .domain(0, d3.max(data, d => d.y))
-  .range([CHART_HEIGHT - MARGIN.bottom - MARGIN.top, 0])
-  .nice();
+    .scaleLinear()
+    .domain(0, d3.max(data, d => d.y))
+    .range([CHART_HEIGHT - MARGIN.bottom - MARGIN.top, 0])
+    .nice();
 
   d3.select('#x-lineAxis')
-  .attr('transform', `translate(0,${CHART_HEIGHT - MARGIN.bottom})`)
+    .attr('transform', `translate(0,${CHART_HEIGHT - MARGIN.bottom})`)
     .call(d3.axisBottom(xScale));
 
   d3.select('#y-lineAxis')
@@ -72,12 +72,52 @@ function update (data) {
     .attr('transform', `translate(${MARGIN.left}, ${MARGIN.top})`);
 
   d3.select('#x-areaAxis')
-  .attr('transform', `translate(0,${CHART_HEIGHT - MARGIN.bottom})`)
+    .attr('transform', `translate(0,${CHART_HEIGHT - MARGIN.bottom})`)
     .call(d3.axisBottom(xScale));
 
   d3.select('#y-areaAxis')
     .call(d3.axisLeft(yScale))
     .attr('transform', `translate(${MARGIN.left}, ${MARGIN.top})`);
+
+  d3.select('#x-barAxis')
+    .attr('transform', `translate(0, ${CHART_HEIGHT - MARGIN.bottom})`)
+    .call(d3.axisBottom(xScale))
+
+  d3.select('#y-barAxis')
+    .call(d3.axisBottom(yScale))
+    .attr('transform', `translate(${MARGIN.left}, ${MARGIN.top})`)
+
+  d3.select('#x-scatterAxis')
+    .attr('transform', `translate(0, ${CHART_HEIGHT - MARGIN.bottom})`)
+    .call(d3.axisBottom(xScale))
+
+  d3.select('#y-scatterAxis')
+    .call(d3.axisBottom(yScale))
+    .attr('transform', `translate(${MARGIN.left}, ${MARGIN.top})`)
+    
+
+  // const areaGenerator = d3
+  //   .area()
+  //   .x((data) => xScale(data.x))
+  //   .y1((data) => yScale(data.y) + MARGIN.top)
+  //   .y0(CHART_HEIGHT - MARGIN.bottom);
+
+  // const lineGenerator = d3
+  //   .line()
+  //   .x((data) => xScale(data.x))
+  //   .y((data) => yScale(data.y) + MARGIN.top);
+
+  // d3.select('#AreaChart')
+  //   .select('path')
+  //   .datum(data)
+  //   .transition(ANIMATION_DURATION)
+  //   .attr('d', this.areaGenerator());
+
+  // d3.select('#LineChart')
+  //   .select('path')
+  //   .datum(data)
+  //   .transition(ANIMATION_DURATION)
+  //   .attr('d', this.lineGenerator());
   
   //TODO 
   // call each update function below, adjust the input for the functions if you need to.
@@ -106,6 +146,7 @@ function updateLineChart () {
  * Update the area chart 
  */
 function updateAreaChart () {
+
 
 }
 

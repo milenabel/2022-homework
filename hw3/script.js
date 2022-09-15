@@ -14,6 +14,9 @@ function setup () {
   changeData();
 }
 
+// Function for mouse hovering changes
+//function mouseHover(){}
+
 /**
  * Render the visualizations
  * @param data
@@ -33,7 +36,8 @@ function update (data) {
   //   .y(d => the y coordinate for a point of the line);
 
   // Syntax for area generator.
-  // the area is bounded by upper and lower lines. So you can specify x0, x1, y0, y1 seperately. Here, since the area chart will have upper and lower sharing the x coordinates, we can just use x(). 
+  // the area is bounded by upper and lower lines. So you can specify x0, x1, y0, y1 seperately. 
+  // Here, since the area chart will have upper and lower sharing the x coordinates, we can just use x(). 
   // Similarly, use the function as the input for 'd' attribute. 
 
   // const areaGenerator = d3.area()
@@ -50,6 +54,10 @@ function update (data) {
 
   //TODO 
   // call each update function below, adjust the input for the functions if you need to.
+  this.updateBarChart();
+  this.updateLineChart();
+  this.updateAreaChart();
+  this.updateScatterPlot();
 }
 
 /**

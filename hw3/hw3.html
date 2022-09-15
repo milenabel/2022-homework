@@ -102,24 +102,76 @@
     <div class="chart">
       <h2>Bar Charts</h2>
       <div id="Barchart-div">
+        <svg width="750" height="550">
+          <g transform="translate(20,0) scale(1, 1)" class="barChart" id="updateBarChart" >
+            <rect x="0" y="30" width="100" height="10"/>
+            <rect x="0" y="60" width="100" height="10"/>
+            <rect x="0" y="90" width="100" height="10"/>
+            <rect x="0" y="120" width="100" height="10"/>
+            <rect x="0" y="150" width="100" height="10"/>
+            <rect x="0" y="180" width="100" height="10"/>
+            <rect x="0" y="210" width="100" height="10"/>
+            <rect x="0" y="240" width="100" height="10"/>
+            <rect x="0" y="270" width="100" height="10"/>
+            <rect x="0" y="300" width="100" height="10"/>
+            <rect x="0" y="330" width="100" height="10"/>
+            <rect x="0" y="360" width="100" height="10"/>
+            <rect x="0" y="390" width="100" height="10"/>
+            <rect x="0" y="420" width="100" height="10"/>
+            <rect x="0" y="450" width="100" height="10"/>
+            <rect x="0" y="480" width="100" height="10"/>
+          </g>
+        </svg>
       </div>
     </div>
 
     <div class="chart">
       <h2>Line Charts</h2>
       <div id="Linechart-div"></div>
+      <svg width="750" height="550">
+        <g transfom="translate(120, 550) scale(1, -1)">
+          <path id="updateLineChart" class="lines"/>
+        </g>
+      </svg>
     </div>
   </div>
 
   <div class="row chart">
     <div class="chart">
       <h2>Area Charts</h2>
-      <div id="Areachart-div"></div>
+      <div id="Areachart-div">
+        <svg width="750" height="550">
+          <g transform="translate(120, 550) scale(1, -1)">
+            <path id="updateAreaChart" class="areas" />
+          </g>
+        </svg>
+      </div>
     </div>
 
     <div class="chart">
       <h2>Scatterplot</h2>
-      <div id="Scatterplot-div"></div>
+      <div id="Scatterplot-div">
+        <svg width="750" height="550">
+          <g transform="translate(0, 550) scale(1, -1)" id="updateScatterPlot">
+            <circle cx="100" cy="100" r="5" />
+            <circle cx="100" cy="100" r="5" />
+            <circle cx="100" cy="100" r="5" />
+            <circle cx="100" cy="100" r="5" />
+            <circle cx="100" cy="100" r="5" />
+            <circle cx="100" cy="100" r="5" />
+            <circle cx="100" cy="100" r="5" />
+            <circle cx="100" cy="100" r="5" />
+            <circle cx="100" cy="100" r="5" />
+            <circle cx="100" cy="100" r="5" />
+            <circle cx="100" cy="100" r="5" />
+            <circle cx="100" cy="100" r="5" />
+            <circle cx="100" cy="100" r="5" />
+            <circle cx="100" cy="100" r="5" />
+            <circle cx="100" cy="100" r="5" />
+            <circle cx="100" cy="100" r="5" />
+          </g>
+        </svg>
+      </div>
     </div>
   </div>
 </body>

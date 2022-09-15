@@ -51,7 +51,34 @@ function update (data) {
   //Cases would be the horizontal axis, so we need to use width related constants.
   //Deaths would be vertical axis, so that would need to use height related constants.
 
+  let xScale = d3
+    .scaleLinear()
+    .domain(0, d3.max(data, d => d.x))
+    .range([MARGIN.left, CHART_WIDTH - MARGIN.right])
+    .nice();
 
+  let yScale = d3
+  .scaleLinear()
+  .domain(0, d3.max(data, d => d.y))
+  .range([CHART_HEIGHT - MARGIN.bottom - MARGIN.top, 0])
+  .nice();
+
+  d3.select('#x-lineAxis')
+  .attr('transform', `translate(0,${CHART_HEIGHT - MARGIN.bottom})`)
+    .call(d3.axisBottom(xScale));
+
+  d3.select('#y-lineAxis')
+    .call(d3.axisLeft(yScale))
+    .attr('transform', `translate(${MARGIN.left}, ${MARGIN.top})`);
+
+  d3.select('#x-areaAxis')
+  .attr('transform', `translate(0,${CHART_HEIGHT - MARGIN.bottom})`)
+    .call(d3.axisBottom(xScale));
+
+  d3.select('#y-areaAxis')
+    .call(d3.axisLeft(yScale))
+    .attr('transform', `translate(${MARGIN.left}, ${MARGIN.top})`);
+  
   //TODO 
   // call each update function below, adjust the input for the functions if you need to.
   this.updateBarChart();

@@ -12,49 +12,125 @@ class MapVis {
       .scale(150) // This set the size of the map
       .translate([400, 250]); // This moves the map to the center of the SVG
 
-    // this.nameArray = globalApplicationState.population.map(d => d.geo.toUpperCase());
-    // this.populationData = globalApplicationState.population;
-    // this.updateCountry = updateCountry;
+    this.drawMap(this.globalApplicationState.mapData, this.globalApplicationState.covidData, projection)
+  }
 
-    try {
-    let geojson = topojson.feature(worldMap, worldMap.objects.countries);
-    let path = d3.geoPath(this.projection);
-    //let svgSelection = d3.select("#map").append("svg");
-    let countryData = geojson.features.map(country => {
+  drawMap(mapData, covidData, projection){
+    // try {
+    let geojson = topojson.feature(mapData, mapData.objects.countries);
+    console.log(geojson)
 
-      let index = this.nameArray.indexOf(country.id);
-      let region = 'countries';
+    // svg.append("path")
+    //       .datum(topojson.feature(mapData, mapData.objects.countries))
+    //       .attr("d", d3.geoPath().projection(d3.geoWinkel3()));
 
-      if (index > -1) {
-          //  console.log(this.populationData[index].geo, country.id);
-        region = this.populationData[index].region;
-        return new CountryData(country.type, country.id, country.properties, country.geometry, region);
-      }
-      else {
-      //iso_code', 'location', 'date', 'total_cases_per_million']
-        //console.log('not found');
-        return new CountryData(country.type, country.id, country.properties, country.geometry, null);
-      }
-    });
+    // let svg = d3.select('#map').append('svg');
 
-    d3.select("map")
-        .select("#graticule")
-        .append('path')
-        .attr('d', path(geoGraticule()))
-        .attr('fill', 'none')
-        .attr('stroke', 'black')
-        .style('opacity', 0.2);
+    let path = d3.geoPath()
+        .projection(projection);
 
-    d3.select("#map")
-      .selectAll("path")
-      .data(countryData)
+
+    // creating the map and its graticules
+    let graticule = d3.geoGraticule();
+
+    d3
+      .select('#map')
+      .append('svg')
+      .append('defs')
+      .append('path')
+      .datum({type: 'Sphere'})
+      .attr('id', 'sphere')
+      .attr('d', path)
+      .attr('fill', 'none')
+      .attr('stroke', 'black')
+      .style('opacity', 0.2);
+    d3
+      .select('#map')
+      .append('svg')
+      .append('use')
+      .attr('class', 'fill')
+      .attr('xlink:href', '#sphere')
+      d3
+      .select('#map')
+      .append('svg')
+      .append('path')
+      .datum(graticule)
+      .attr('d', path)
+      .attr('class', 'graticule')
+      .attr('fill', 'none')
+      .attr('stroke', 'black')
+      .style('opacity', 0.2);
+
+    let countries = topojson.feature(mapData, mapData.objects.countries).features;
+    let colorScale = d3.scaleSequential(d3.interpolateReds)
+        .domain([d3.min(covidData, c => parseFloat(c.total_cases_per_million)), d3.max(covidData, c => parseFloat(c.total_cases_per_million))]);
+
+    d3
+      .select('#map')
+      .append('svg')
+      .selectAll('path')
+      .data(countries)
       .enter()
-      .append("path")
-      .attr("d", path)
-      .attr("class", d => d.region)
-      .classed("countries", true)
-      .classed("boundary", true)
-      .attr("id", d => d.id);
+      .append('path')
+      .attr('d', d=>path)
+      .attr('class', 'country')
+      .attr('d', path)
+      .attr('fill', (d) => {return colorScale(d3.max(covidData.filter(c => c.iso_code === d.id), c => parseFloat(c.total_cases_per_million)));})
+      .attr('id', (d) => d.id)
+    //   .on('click', (d) => {
+    //   console.log('clicked', d)
+    // })
+
+    // const stateD3 = d3
+    //   .select('#map')
+    //   .append('svg')
+    //   .select('#countries')
+    //   .selectAll('path')
+    //   .data(countries)
+    //   .enter()
+    //   .append('path')
+    //   .attr('d', path)
+    //   .attr('fill', (d) => {return colorScale(d3.max(covidData.filter(c => c.iso_code === d.id), c => parseFloat(c.total_cases_per_million)));})
+    //   // colorScale(countries))
+    //   .attr('id', (d) => d.id)
+    //   .attr('stroke', 'lightgrey')
+      
+    // stateD3.on('click', (d) => {
+    //   console.log('clicked', d)
+    // })
+    
+
+    // svg
+    //   .selectAll('path')
+    //   .data(countries)
+    //   .enter()
+    //   .append('path')
+    //   .attr("class", "country")
+    //   .attr('d', path(countries))
+    //   .attr('fill', 'none')
+    //   .attr('stroke', 'lightgrey')
+
+    // d3.select("#map")
+    //     .select("#graticule")
+    //     .append('path')
+    //     .attr('d', geoGraticule.outline())
+    //     .attr('fill', 'none')
+    //     .attr('stroke', 'black')
+    //     .style('opacity', 0.2);
+  
+    // const stateD3 = svg
+    //   .select('#countries')
+    //   .selectAll('path')
+    //   .data(countries.features)
+    //   .enter()
+    //   .append('path')
+    //   .attr('d', path)
+    //   .attr('fill', (d) => colorScale(countries))
+    //   .attr('stroke', 'lightgrey')
+      
+    // stateD3.on('click', (d) => {
+    //   console.log('clicked', d)
+    // })
 
 
       // //formation of outlines and boundaries using outline
@@ -63,10 +139,10 @@ class MapVis {
       // d3.select("#map").append("path").datum(mapGraticule.outline).classed("strokeGraticule", true).attr("d", path);
 
       
-      }
-      catch(error){
-          console.log(error);
-      }
+      // }
+      // catch(error){
+      //     console.log(error);
+      // }
   }
 
   updateSelectedCountries () {

@@ -60,6 +60,17 @@ class MapVis {
       .attr('stroke', 'black')
       .style('opacity', 0.2);
 
+      console.log(covidData)
+
+      Object.keys(covidData).map(function (key, index) {
+        if (covidData[key] == null) {
+            covidData[key] === 0;
+        }
+      });
+      console.log(covidData); 
+
+    let fcovidData = covidData
+
     let countries = topojson.feature(mapData, mapData.objects.countries).features;
     let colorScale = d3.scaleSequential(d3.interpolateReds)
         .domain([d3.min(covidData, c => parseFloat(c.total_cases_per_million)), d3.max(covidData, c => parseFloat(c.total_cases_per_million))]);

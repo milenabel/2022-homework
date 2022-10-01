@@ -26,6 +26,7 @@ loadData().then((loadedData) => {
   // Store the loaded data into the globalApplicationState
   globalApplicationState.covidData = loadedData.covidData;
   globalApplicationState.mapData = loadedData.mapData;
+  globalApplicationState.groupData = loadedData.groupData;
 
   // Creates the view objects with the global state passed in 
   const worldMap = new MapVis(globalApplicationState);

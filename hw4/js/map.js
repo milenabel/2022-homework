@@ -83,7 +83,7 @@ class MapVis {
       .data(countries)
       .enter()
       .append('path')
-      .attr('d', d=>path)
+      .attr('d', path)
       .attr('class', 'country')
       .attr('d', path)
       .attr('id', (d) => d.id)
@@ -107,16 +107,25 @@ class MapVis {
           console.log(error);
       }
 
-    legend = d3.select('#legend')
+    let legend = d3.select('#legend')
       .append('rect')
       .attr('width', innerWidth)
       .attr('y', 0)
-      .attr('height', 50)
+      .attr('height', 35)
       .style("fill", "url(#color-gradient)");
 
-    let linearGradient = svg.append("defs")
+    let linearGradient = d3.select('#legend')
+      .append("defs")
       .append("linearGradient")
       .attr("id", "linear-gradient");
+
+
+    legend.append("text")
+      .attr("class", "legendTitle")
+      .attr("x", 0)
+      .attr("y", 20)
+      .style("text-anchor", "left")
+      .text("0              660k");
 
 
 

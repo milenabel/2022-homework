@@ -33,6 +33,37 @@
             <g id="lines"></g>
             <g id="overlay"><line></line></g>
         </svg>
+        <svg id="legend" viewBox="0 0 ${innerWidth} ${50}">
+            <defs>
+              <linearGradient id="color-gradient">
+                <!-- <stop offset="10%" style="stop-color:color1;stop-opacity:1"></stop>
+                <stop offset="20%" style="stop-color:color2;stop-opacity:1"></stop>
+                <stop offset="30%" style="stop-color:color3;stop-opacity:1"></stop>
+                <stop offset="40%" style="stop-color:color4;stop-opacity:1"></stop>
+                <stop offset="50%" style="stop-color:color5;stop-opacity:1"></stop>
+                <stop offset="60%" style="stop-color:color6;stop-opacity:1"></stop>
+                <stop offset="70%" style="stop-color:color7;stop-opacity:1"></stop>
+                <stop offset="80%" style="stop-color:color8;stop-opacity:1"></stop>
+                <stop offset="90%" style="stop-color:color9;stop-opacity:1"></stop>
+                <stop offset="100%" style="stop-color:color10;stop-opacity:1"></stop> -->
+                <stop offset="0%" style="stop-color:white;stop-opacity:1"></stop>
+                <stop offset="30%" style="stop-color:rgb(255, 92, 92);stop-opacity:1"></stop>
+                <stop offset="60%" style="stop-color:rgb(255, 47, 47);stop-opacity:1"></stop>
+                <stop offset="100%" style="stop-color:rgba(255, 0, 0, 0.815);stop-opacity:1"></stop>
+
+            <!-- let color1 = d3.interpolateReds(0.1);
+            let color2 = d3.interpolateReds(0.2);
+            let color3 = d3.interpolateReds(0.3);
+            let color4 = d3.interpolateReds(0.4);
+            let color5 = d3.interpolateReds(0.5);
+            let color6 = d3.interpolateReds(0.6);
+            let color7 = d3.interpolateReds(0.7);
+            let color8 = d3.interpolateReds(0.8);
+            let color9 = d3.interpolateReds(0.9);
+            let color10 = d3.interpolateReds(1.0); -->
+              </linearGradient> 
+            </defs>
+          </svg>
         <button id="clear-button">Clear Selected Countries</button>
     </div>
 </body>

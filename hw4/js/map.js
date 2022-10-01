@@ -16,7 +16,7 @@ class MapVis {
   }
 
   drawMap(mapData, covidData, projection){
-    // try {
+    try {
     let geojson = topojson.feature(mapData, mapData.objects.countries);
     console.log(geojson)
 
@@ -50,7 +50,7 @@ class MapVis {
       .append('use')
       .attr('class', 'fill')
       .attr('xlink:href', '#sphere')
-      d3
+    d3
       .select('#map')
       .append('svg')
       .append('path')
@@ -65,9 +65,10 @@ class MapVis {
     let colorScale = d3.scaleSequential(d3.interpolateReds)
         .domain([d3.min(covidData, c => parseFloat(c.total_cases_per_million)), d3.max(covidData, c => parseFloat(c.total_cases_per_million))]);
 
+    const that = this;
     d3
       .select('#map')
-      .append('svg')
+      .select('#countries')
       .selectAll('path')
       .data(countries)
       .enter()
@@ -75,77 +76,107 @@ class MapVis {
       .attr('d', d=>path)
       .attr('class', 'country')
       .attr('d', path)
-      .attr('fill', (d) => {return colorScale(d3.max(covidData.filter(c => c.iso_code === d.id), c => parseFloat(c.total_cases_per_million)));})
       .attr('id', (d) => d.id)
-    //   .on('click', (d) => {
-    //   console.log('clicked', d)
+      .attr('fill', (d) => colorScale(d3.max(covidData.filter(c => c.iso_code === d.id), c => parseFloat(c.total_cases_per_million))))
+      .on("click", function(event, d) {
+        let selection = that.updateSelectedCountries(d);
+        console.log('clicked', d);
+      })
+
+      // .on('click', (d)=> {
+      //     console.log('clicked', d)
+      //   })
+
+    // countries.on("click", function(event, d) {
+    //   const selection = that.updateSelectedCountries(d);
+    //   console.log(d);
     // })
 
-    // const stateD3 = d3
-    //   .select('#map')
-    //   .append('svg')
-    //   .select('#countries')
-    //   .selectAll('path')
-    //   .data(countries)
-    //   .enter()
-    //   .append('path')
-    //   .attr('d', path)
-    //   .attr('fill', (d) => {return colorScale(d3.max(covidData.filter(c => c.iso_code === d.id), c => parseFloat(c.total_cases_per_million)));})
-    //   // colorScale(countries))
-    //   .attr('id', (d) => d.id)
-    //   .attr('stroke', 'lightgrey')
-      
-    // stateD3.on('click', (d) => {
-    //   console.log('clicked', d)
-    // })
-    
+      }
+      catch(error){
+          console.log(error);
+      }
 
-    // svg
-    //   .selectAll('path')
-    //   .data(countries)
-    //   .enter()
-    //   .append('path')
-    //   .attr("class", "country")
-    //   .attr('d', path(countries))
-    //   .attr('fill', 'none')
-    //   .attr('stroke', 'lightgrey')
+    legend = d3.select('#legend')
+      .append('rect')
+      .attr('width', innerWidth)
+      .attr('y', 0)
+      .attr('height', 50)
+      .style("fill", "url(#color-gradient)");
 
-    // d3.select("#map")
-    //     .select("#graticule")
-    //     .append('path')
-    //     .attr('d', geoGraticule.outline())
-    //     .attr('fill', 'none')
-    //     .attr('stroke', 'black')
-    //     .style('opacity', 0.2);
-  
-    // const stateD3 = svg
-    //   .select('#countries')
-    //   .selectAll('path')
-    //   .data(countries.features)
-    //   .enter()
-    //   .append('path')
-    //   .attr('d', path)
-    //   .attr('fill', (d) => colorScale(countries))
-    //   .attr('stroke', 'lightgrey')
-      
-    // stateD3.on('click', (d) => {
-    //   console.log('clicked', d)
-    // })
+    let linearGradient = svg.append("defs")
+      .append("linearGradient")
+      .attr("id", "linear-gradient");
 
 
-      // //formation of outlines and boundaries using outline
-      // let mapGraticule = d3.geoGraticule();
-      // d3.select("#map").append("path").datum(mapGraticule).attr("class", "graticule").attr("d", path);
-      // d3.select("#map").append("path").datum(mapGraticule.outline).classed("strokeGraticule", true).attr("d", path);
 
-      
-      // }
-      // catch(error){
-      //     console.log(error);
-      // }
+
+
+
+      // append a defs (for definition) element to your SVG
+// var svgLegend = d3.select('body').append('svg')
+// .attr("width",600);
+// var defs = svgLegend.append('defs');
+
+// // append a linearGradient element to the defs and give it a unique id
+// var linearGradient = defs.append('linearGradient')
+// .attr('id', 'linear-gradient');
+
+// // horizontal gradient
+// linearGradient
+// .attr("x1", "0%")
+// .attr("y1", "0%")
+// .attr("x2", "100%")
+// .attr("y2", "0%");
+
+// // append multiple color stops by using D3's data/enter step
+
+// linearGradient.selectAll("stop")
+// .data(colorScale.domain())
+// .enter().append("stop")
+// .attr("offset", function(d) { 
+// return d+"%"; 
+// })
+// .attr("stop-color", function(d) { 
+// return colorScale(d); 
+// });
+
+// // append title
+// svgLegend.append("text")
+// .attr("class", "legendTitle")
+// .attr("x", 0)
+// .attr("y", 20)
+// .style("text-anchor", "left")
+// .text("Legend title");
+
+// // draw the rectangle and fill with gradient
+// svgLegend.append("rect")
+// .attr("x", 10)
+// .attr("y", 30)
+// .attr("width", 400)
+// .attr("height", 15)
+// .style("fill", "url(#linear-gradient)");
+
+// //create tick marks
+// var xLeg = d3.scaleLinear()
+// .domain([0, 100])
+// .range([10, 400]);
+
+// var axisLeg = d3.axisBottom(xLeg)
+// .tickValues(colorScale.domain())
+
+// svgLegend
+// .attr("class", "axis")
+// .append("g")
+// .attr("transform", "translate(0, 40)")
+// .call(axisLeg);
+
   }
 
-  updateSelectedCountries () {
 
+  updateSelectedCountries () {
+    let projection = this.projection;
+    //Clear any previous selections;
+    this.clearMap();
   }
 }

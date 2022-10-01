@@ -123,5 +123,7 @@ class LineChart {
 
   updateSelectedCountries () {
 
+    // ran out of time to do because of debugging
+
   }
 }

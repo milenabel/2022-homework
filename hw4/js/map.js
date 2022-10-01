@@ -29,7 +29,6 @@ class MapVis {
     let path = d3.geoPath()
         .projection(projection);
 
-
     // creating the map and its graticules
     let graticule = d3.geoGraticule();
 

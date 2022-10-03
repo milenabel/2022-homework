@@ -63,7 +63,7 @@ class MapVis {
       console.log(covidData)
 
       Object.keys(covidData).map(function (key, index) {
-        if (covidData[key] == null) {
+        if (covidData[key] == '') {
             covidData[key] === 0;
         }
       });

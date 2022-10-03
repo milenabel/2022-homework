@@ -16,11 +16,17 @@ class LineChart {
 
     // console.log(covidData.iso_code.startsWith('OWID'));
 
-    let tofilter = this.globalApplicationState.covidData.iso_code;
-    let filteredData = tofilter.filter(d => d.iso_code.startsWith('OWID'));
-
-    const groupedCovidData = d3.group(filteredData, (d) => d.location);
+    let selected_data = this.globalApplicationState.covidData.filter((d) => d.iso_code.includes('OWID'));
+      
+    const groupedCovidData = d3.group(selected_data, (d) => d.location);
     console.log(groupedCovidData)
+
+
+    // let tofilter = this.globalApplicationState.covidData.iso_code;
+    // let filteredData = tofilter.filter(d => d.iso_code.startsWith('OWID'));
+
+    // const groupedCovidData = d3.group(filteredData, (d) => d.location);
+    // console.log(groupedCovidData)
 
 
 
@@ -40,39 +46,42 @@ class LineChart {
     // const groupedCovidData= require('./grouped.json'); 
     // console.log(groupedCovidData);
 
-    lineChart = d3.select('#line-chart')
-    // padding = {
-    //   return {left: 80, bottom: 20, right:50}
-    // }
-    lineColorScale = d3.scaleOrdinal(d3.schemeTableau10).domain(groupedCovidData.keys());
+    //lineChart = d3.select('#line-chart')
+    //padding = {return {left: 80, bottom: 20, right:50} }
+    // padding = '80x 20x 50x'
+    // let lineColorScale = d3.scaleOrdinal(d3.schemeTableau10).domain(groupedCovidData.keys());
 
 
     // let minValue = d3.min(this.groupedCovidData, function (d) {
     //     return d[groupedCovidData.date];
     // });
     // let maxValue = d3.max(this.groupedCovidData, function (d) {
-    //     return d[selectedDimension];
+    //     return d[groupedCovidData.date];
     // });
-    // let date = [];
-    // for (let item of this.groupedCovidData) {
-    //     date.push(item.date);
-    // }
+    let date = [];
+    for (let item of groupedCovidData) {
+        date.push(item.date);
+    }
 
 
     // Add x axis --> it is a date format
     // let xAxis = {
         let xAxis =d3.scaleTime()
-        .domain([d3.min(groupedCovidData, c => c.date), d3.max(groupedCovidData, c => c.date)])
-        .range([ padding.left, innerWidth - padding.right]);
+        .domain([d3.min(date), d3.max(date)])
+        .range([ 80, 700 - 50]);
 
-      lineChart
+      //lineChart
+      d3.select('#line-chart')
         .select('#x-axis')
-        .attr('transform', `translate(0, ${700 - padding.bottom})`)
-        .call(d3.axisBottom(xAxis).ticks(7,'.2d'))
+        .attr('transform', `translate(${700 - 20})`)
+        .append('g')
+        .attr('id', 'x-Axis')
+        .call(d3.axisBottom(xAxis).tickFormat(d3.timeFormat('%b $Y')));
 
       // Append x axis text
-      lineChart
-        .select('#axes')
+      //lineChart
+      d3.select('#line-chart')
+        //.select('#axes')
         .append('text')
         .text('Date')
         .attr('x', 550)
@@ -86,29 +95,40 @@ class LineChart {
       // Add y axis
       const yAxis = d3.scaleLinear()
         .domain([0, d3.max(groupedCovidData, c => parseFloat(c.total_cases_per_million))])
-        .range([ 600 - padding.bottom, 10 ])
+        .range([500 - 20, 10 ])
         .nice();
 
-      lineChart
-        .select('#axes')
+      //lineChart
+      d3.select('#line-chart')
+        .select('#y-axes')
+        .attr('transform', `translate(${80},0)`)
         .append('g')
-        .attr('transform', `translate(${padding.left},0)`)
+        .attr('id', 'y-Axis')
         .call(d3.axisLeft(yAxis));
 
       // Append y axis text
-      lineChart
+      //lineChart
+      d3.select('#line-chart')
         .select('#axes')
         .append('text')
         .text('Cases per Million')
-        .attr('x', -340)
+        .attr('x', -270)
         .attr('y', 20)
         .attr('transform', 'rotate(-90)');
 
     //   return yAxis
     // }
 
-    lineChart
+    // let ColorScale = d3.scaleSequential(d3.interpolateReds)
+    //     .domain([d3.min(covidData, c => parseFloat(c.total_cases_per_million)), d3.max(covidData, c => parseFloat(c.total_cases_per_million))]);
+
+    let lineColorScale = d3.scaleOrdinal(d3.schemeTableau10).domain(groupedCovidData.keys());
+
+
+    //lineChart
+    d3.select('#line-chart')
       .select('#lines')
+      .append('g')
       .selectAll('path')
       .data(groupedCovidData)
       .join('path')
@@ -116,8 +136,8 @@ class LineChart {
       .attr('stroke', ([group, values]) => lineColorScale(group))
       .attr('stroke-width', 1)
       .attr('d', ([group, values]) => d3.line()
-                                        .x((d) => xAxis(d.date))
-                                        .y((d) => yAxis(d.spending))
+                                        .x((d) => new Date(d.date))
+                                        .y((d) => yAxis(d.total_cases_per_million))
                                         (values))
   }
 

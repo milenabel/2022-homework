@@ -6,6 +6,7 @@ class Table {
     constructor(forecastData, pollData) {
         this.forecastData = forecastData;
         this.tableData = [...forecastData];
+        console.log(forecastData);
         // add useful attributes
         for (let forecast of this.tableData)
         {

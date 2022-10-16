@@ -7,6 +7,7 @@ class Table {
         this.forecastData = forecastData;
         this.tableData = [...forecastData];
         console.log(forecastData);
+        console.log(this.tableData);
         // add useful attributes
         for (let forecast of this.tableData)
         {
@@ -53,31 +54,14 @@ class Table {
         /**
          * Draw the legend for the bar chart.
          */
-        let axis = d3
-            .axisBottom(this.scaleX)
-            .tickValues([-75,-50, -25, 25, 50, 75])
-            .tickFormat(d3.format('+'));
-            
-        // let styles = axis.style(axis.tickValues()>0 ? 'red' : 'blue');
+        let labels = ['+75','+50','+25', '','+25', '+50', '+75'];
+        //let ticks = [-75,-50, -25, 25, 50, 75];
 
-        let scale = d3.select('#predictionTable')
-            .select('#marginAxis')
+        let svg = d3.select('#marginAxis')
             .attr('width', this.vizWidth)
-            .attr('height', this.vizHeight)
-            .call(axis);   
-
-        let removingDomain = scale
-            .select('.domain')
-            .attr('stroke-width', 0);
-            
-        let removingTicks = scale
-            .selectAll('g')
-            .selectAll('line')
-            .remove()
-            .selectAll('path')
-            .remove();
-
-        let line = scale.append('line')
+            .attr('height', this.vizHeight);
+        
+        let line = svg.append('line')
             .attr('x1', (this.vizWidth/2))
             .attr('y1', 0)
             .attr('x2', (this.vizWidth/2))
@@ -85,6 +69,68 @@ class Table {
             .style('stroke-width', 2)
             .style('stroke', 'black')
             .style('fill', 'none');
+
+        // version 1 
+
+        let grouped = svg.selectAll('g')
+            .data(labels)
+            .enter().append('g')
+            .attr('tranform', function(d, i) {
+                return 'translate(' + (i*37.5+26) + ',0)';
+            });
+
+        grouped.append('text')
+            .attr('class', function(d, i) {
+                if (i < 3){return 'biden';}
+                else {return 'trump';}
+            })
+            .attr('dy', '1.5em')
+            .text(d => d);
+
+        // version 2
+
+        // let axis = d3
+        //     .axisBottom(this.scaleX)
+        //     .tickValues(ticks)
+        //     .tickFormat(function(d, i){return tickLabels[i]});
+            //.append('text');
+        // Something went wrong with the code below for colors
+        // d3.selectAll('g.tick')
+        //     //.filter(function(d){ return (d <= 0);} )
+        //     // .selectAll('text') //grab the text
+        //     .attr('class', 'trump'); //style with .trump class in CSS
+        //     //.style('fill', 'firebrick'); 
+        // d3.selectAll('g.tick')
+        //     .filter(function(d, i){ return (d >= 0);} )
+        //     .selectAll('text') //grab the text
+        //     .attr('class', 'biden'); //style with a custom class and CSS
+            //.style('fill', 'firebrick');
+        // console.log(d3.selectAll('g.tick.text'));
+        // d3.selectAll('g.tick.text')
+        // // .selectAll('text')
+        //     .attr('class', function(d, i){ 
+        //         if (i > 3){
+        //         return 'trump'}
+        //         else {return 'biden'}
+        //     })
+        //     .text(d=>d);
+            //.selectAll('text') //grab the text
+            //.attr('class', 'biden'); //style with a custom class and CSS
+            //.style('fill', 'firebrick');
+        // let scale = d3.select('#predictionTable')
+        //     .select('#marginAxis')
+        //     .attr('width', this.vizWidth)
+        //     .attr('height', this.vizHeight)
+        //     .call(axis);   
+        // let removingDomain = scale
+        //     .select('.domain')
+        //     .attr('stroke-width', 0);   
+        // let removingTicks = scale
+        //     .selectAll('g')
+        //     .selectAll('line')
+        //     .remove()
+        //     .selectAll('path')
+        //     .remove();
     }
 
     drawTable() {
@@ -126,6 +172,7 @@ class Table {
             .join('td').text(d => d.value)
 
         let vizSelection = forecastSelection.filter(d => d.type === 'viz');
+        console.log(vizSelection);
 
         let svgSelect = vizSelection.selectAll('svg')
             .data(d => [d])
@@ -197,6 +244,17 @@ class Table {
         /**
          * update the column headers based on the sort state
          */
+        //  let that = this;
+        //  that.tableElements.sort(function(a, b){
+        //      // console.log(a.key, b.key);
+        //      if(that.namesColOrder){
+        //          // console.log(d3.ascending(a.key, b.key));
+        //          return d3.ascending(a.key, b.key);
+        //      }
+        //      else return d3.descending(a.key, b.key);
+        //  });
+        //  that.namesColOrder = !that.namesColOrder;
+        //  that.collapseList();
 
      
     }
@@ -208,78 +266,32 @@ class Table {
         /**
          * add gridlines to the vizualization
          */
-        //containerSelect = d3.select('#predictionTableBody').selectAll('svg').select('g');
-        // ticks = [-75, -50, -25, 0, 25, 50, 75];
-        let gridline1 = containerSelect
-            .append('line')
-            .attr('x1', ticks[0])
-            .attr('y1', 0)
-            .attr('x2', ticks[0])
-            .attr('y2', this.vizHeight)
-            .attr('transform', 'translate(+115, 0)')
-            .style('stroke-width', 2)
-            .style('stroke', 'lightgrey')
-            .style('fill', 'none');
-        
-        let gridline2 = containerSelect.append('line')
-            .attr('x1', ticks[1])
-            .attr('y1', 0)
-            .attr('x2', ticks[1])
-            .attr('y2', this.vizHeight)
-            .attr('transform', 'translate(+130, 0)')
-            .style('stroke-width', 2)
-            .style('stroke', 'lightgrey')
-            .style('fill', 'none');
-
-        let gridline3 = containerSelect.append('line')
-            .attr('x1', ticks[3])
-            .attr('y1', 0)
-            .attr('x2', ticks[3])
-            .attr('y2', this.vizHeight)
-            .attr('transform', 'translate(+115, 0)')
-            .style('stroke-width', 2)
-            .style('stroke', 'lightgrey')
-            .style('fill', 'none');
-
-        let gridline4 = containerSelect.append('line')
-            .attr('x1', ticks[4])
-            .attr('y1', 0)
-            .attr('x2', ticks[4])
-            .attr('y2', this.vizHeight)
-            .attr('transform', 'translate(+165, 0)')
-            .style('stroke-width', 2)
-            .style('stroke', 'lightgrey')
-            .style('fill', 'none');
-
-        let gridline5 = containerSelect.append('line')
-            .attr('x1', ticks[5])
-            .attr('y1', 0)
-            .attr('x2', ticks[5])
-            .attr('y2', this.vizHeight)
-            .attr('transform', 'translate(+175, 0)')
-            .style('stroke-width', 2)
-            .style('stroke', 'lightgrey')
-            .style('fill', 'none');
-            
-        let gridline6 = containerSelect.append('line')
-            .attr('x1', ticks[6])
-            .attr('y1', 0)
-            .attr('x2', ticks[6])
-            .attr('transform', 'translate(+190, 0)')
-            .attr('y2', this.vizHeight)
-            .style('stroke-width', 2)
-            .style('stroke', 'lightgrey')
-            .style('fill', 'none');
-
-        let line = containerSelect.append('line')  // middle line
-            .attr('x1', (this.vizWidth/2))
-            .attr('y1', 0)
-            .attr('x2', (this.vizWidth/2))
-            .attr('y2', this.vizHeight)
-            .style('stroke-width', 2)
-            .style('stroke', 'black')
-            .style('fill', 'none');
-
+        for (let i=0; i<ticks.length; i++){
+            let position = this.scaleX(ticks[i])
+            if (i === 3){
+                containerSelect
+                    .append('line') // middle line
+                    .attr('x1', 150)
+                    .attr('y1', 0)
+                    .attr('x2', 150)
+                    .attr('y2', this.vizHeight)
+                    //.attr('transform', 'translate(+115, 0)')
+                    .style('stroke-width', 2)
+                    .style('stroke', 'black')
+                    .style('fill', 'none');
+            }
+            else {
+                containerSelect
+                    .append('line')  // actual gridlines
+                    .attr('x1', position)
+                    .attr('y1', 0)
+                    .attr('x2', position)
+                    .attr('y2', this.vizHeight)
+                    .style('stroke-width', 2)
+                    .style('stroke', 'lightgrey')
+                    .style('fill', 'none');
+            }
+        };
     }
 
     addRectangles(containerSelect) {
@@ -289,9 +301,59 @@ class Table {
         /**
          * add rectangles for the bar charts
          */
-        
+        let that = this;
+        let individualContainers = containerSelect 
+            .append('rect')
+            .attr('x', function(d){
+                let x1 = that.scaleX(d.value.marginLow);
+                return x1;
+            })
+            .attr('y', 0)
+            .attr('width', function(d){
+                let x1 = that.scaleX(d.value.marginLow);
+                let x2 = that.scaleX(d.value.marginHigh);
+                if (x1 <= 150 && x2 >= 150){ return 0; }
+                else { return x2 - x1; }
+            })
+            .attr('height', 20)
+            .attr('class', function(d) {
+                if (that.scaleX(d.value.marginLow) >= 150) { return 'trump'; }
+                else if (that.scaleX(d.value.marginLow) <= 150) { return 'biden'; }
+            })
+            .style('opacity', 0.5);
 
-       
+        let bidenContainers = containerSelect 
+            .append('rect')
+            .attr('x', function(d){
+                let x1 = that.scaleX(d.value.marginLow);
+                let x2 = that.scaleX(d.value.marginHigh);
+                if (x1 <= 150 && x2 >= 150){ return x1; }
+                else { return 0; }
+            })
+            .attr('y', 0)
+            .attr('width', function(d){
+                let x1 = that.scaleX(d.value.marginLow);
+                let x2 = that.scaleX(d.value.marginHigh);
+                if (x1 <= 150 && x2 >= 150){ return 150-x1; }
+                else {return 0; }
+            })
+            .attr('height', 20)
+            .attr('class', 'biden')
+            .style('opacity', 0.5);
+
+        let trumpContainers = containerSelect 
+            .append('rect')
+            .attr('x', 150)
+            .attr('y', 0)
+            .attr('width', function(d){
+                let x1 = that.scaleX(d.value.marginLow);
+                let x2 = that.scaleX(d.value.marginHigh);
+                if (x1 <= 150 && x2 >= 150){ return x2 -150; }
+                else {return 0; }
+            })
+            .attr('height', 20)
+            .attr('class', 'trump')
+            .style('opacity', 0.5);
     }
 
     addCircles(containerSelect) {
@@ -301,8 +363,21 @@ class Table {
         /**
          * add circles to the vizualizations
          */
-
-      
+        let that = this;
+        containerSelect
+            .append('circle')
+            .attr('cx', function(d){
+                return (that.scaleX(d.value.marginLow)+that.scaleX(d.value.marginHigh))/2;
+            })
+            .attr('cy', 10)
+            .attr('r', 5)
+            .attr('class', function(d){
+                let color = (that.scaleX(d.value.marginLow)+that.scaleX(d.value.marginHigh))/2;
+                if (color < 150){return 'biden';}
+                else {return 'trump';}
+            })
+            .style('stroke', 'black')
+            .style('stroke-width', 0.5);      
     }
 
     attachSortHandlers() 
@@ -314,6 +389,21 @@ class Table {
          * Attach click handlers to all the th elements inside the columnHeaders row.
          * The handler should sort based on that column and alternate between ascending/descending.
          */
+        let that = this;
+        let rowHeaderSelection = d3.select('#columnHeaders')
+            .selectAll('th')
+            .on('click', function(d){
+                onClick(d);
+            })
+        function onClick(d){
+            let clickText = d.path[0].innerText;
+            if (clickText == 'State'){
+                
+            }
+            // if (clickText == 'Margin of Victory')
+            // if (clickText == 'Wins')
+            that.updateHeaders();
+        }
 
         
     }

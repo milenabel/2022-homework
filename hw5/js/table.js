@@ -53,8 +53,38 @@ class Table {
         /**
          * Draw the legend for the bar chart.
          */
+        let axis = d3
+            .axisBottom(this.scaleX)
+            .tickValues([-75,-50, -25, 25, 50, 75])
+            .tickFormat(d3.format('+'));
+            
+        // let styles = axis.style(axis.tickValues()>0 ? 'red' : 'blue');
 
-       
+        let scale = d3.select('#predictionTable')
+            .select('#marginAxis')
+            .attr('width', this.vizWidth)
+            .attr('height', this.vizHeight)
+            .call(axis);   
+
+        let removingDomain = scale
+            .select('.domain')
+            .attr('stroke-width', 0);
+            
+        let removingTicks = scale
+            .selectAll('g')
+            .selectAll('line')
+            .remove()
+            .selectAll('path')
+            .remove();
+
+        let line = scale.append('line')
+            .attr('x1', (this.vizWidth/2))
+            .attr('y1', 0)
+            .attr('x2', (this.vizWidth/2))
+            .attr('y2', this.vizHeight)
+            .style('stroke-width', 2)
+            .style('stroke', 'black')
+            .style('fill', 'none');
     }
 
     drawTable() {
@@ -71,21 +101,29 @@ class Table {
                     this.toggleRow(d, this.tableData.indexOf(d));
                 }
             });
+        
+        //console.log(rowSelection);
 
         let forecastSelection = rowSelection.selectAll('td')
             .data(this.rowToCellDataTransform)
             .join('td')
             .attr('class', d => d.class);
+        //console.log(forecastSelection);
 
-
-         
         ////////////
         // PART 1 // 
         ////////////
         /**
          * with the forecastSelection you need to set the text based on the dat value as long as the type is 'text'
          */
-
+        let filteredData = forecastSelection.filter(d => d.type === 'text');
+        //console.log(filteredData);
+        let rows = filteredData
+            .append('text')
+            .text((d) => {
+                    return Object.values(d);
+                })
+            .join('td').text(d => d.value)
 
         let vizSelection = forecastSelection.filter(d => d.type === 'viz');
 
@@ -170,6 +208,77 @@ class Table {
         /**
          * add gridlines to the vizualization
          */
+        //containerSelect = d3.select('#predictionTableBody').selectAll('svg').select('g');
+        // ticks = [-75, -50, -25, 0, 25, 50, 75];
+        let gridline1 = containerSelect
+            .append('line')
+            .attr('x1', ticks[0])
+            .attr('y1', 0)
+            .attr('x2', ticks[0])
+            .attr('y2', this.vizHeight)
+            .attr('transform', 'translate(+115, 0)')
+            .style('stroke-width', 2)
+            .style('stroke', 'lightgrey')
+            .style('fill', 'none');
+        
+        let gridline2 = containerSelect.append('line')
+            .attr('x1', ticks[1])
+            .attr('y1', 0)
+            .attr('x2', ticks[1])
+            .attr('y2', this.vizHeight)
+            .attr('transform', 'translate(+130, 0)')
+            .style('stroke-width', 2)
+            .style('stroke', 'lightgrey')
+            .style('fill', 'none');
+
+        let gridline3 = containerSelect.append('line')
+            .attr('x1', ticks[3])
+            .attr('y1', 0)
+            .attr('x2', ticks[3])
+            .attr('y2', this.vizHeight)
+            .attr('transform', 'translate(+115, 0)')
+            .style('stroke-width', 2)
+            .style('stroke', 'lightgrey')
+            .style('fill', 'none');
+
+        let gridline4 = containerSelect.append('line')
+            .attr('x1', ticks[4])
+            .attr('y1', 0)
+            .attr('x2', ticks[4])
+            .attr('y2', this.vizHeight)
+            .attr('transform', 'translate(+165, 0)')
+            .style('stroke-width', 2)
+            .style('stroke', 'lightgrey')
+            .style('fill', 'none');
+
+        let gridline5 = containerSelect.append('line')
+            .attr('x1', ticks[5])
+            .attr('y1', 0)
+            .attr('x2', ticks[5])
+            .attr('y2', this.vizHeight)
+            .attr('transform', 'translate(+175, 0)')
+            .style('stroke-width', 2)
+            .style('stroke', 'lightgrey')
+            .style('fill', 'none');
+            
+        let gridline6 = containerSelect.append('line')
+            .attr('x1', ticks[6])
+            .attr('y1', 0)
+            .attr('x2', ticks[6])
+            .attr('transform', 'translate(+190, 0)')
+            .attr('y2', this.vizHeight)
+            .style('stroke-width', 2)
+            .style('stroke', 'lightgrey')
+            .style('fill', 'none');
+
+        let line = containerSelect.append('line')  // middle line
+            .attr('x1', (this.vizWidth/2))
+            .attr('y1', 0)
+            .attr('x2', (this.vizWidth/2))
+            .attr('y2', this.vizHeight)
+            .style('stroke-width', 2)
+            .style('stroke', 'black')
+            .style('fill', 'none');
 
     }
 
@@ -180,6 +289,7 @@ class Table {
         /**
          * add rectangles for the bar charts
          */
+        
 
        
     }

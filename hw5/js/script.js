@@ -1,5 +1,10 @@
 preGrouped = d3.json('./data/senate_polls.json');
 // extraCredit = d3.csv('./data/senate_polls.csv');
+// console.log(extraCredit);
+// let selected_data = extraCredit.filter((d) => {d.state, d.winner_Dparty, d.winner_Rparty, d.mean_netpartymargin, d.p90_netpartymargin, d.p10_netpartymargin});
+      
+//     const newPollsData = d3.group(selected_data, (d) => {d.state, d.poll_id });
+//     console.log(newPollsData);
 
 Promise.all([d3.csv('./data/senate_forecasts.csv'), preGrouped]).then( data =>
     {

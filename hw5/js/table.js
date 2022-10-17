@@ -43,6 +43,7 @@ class Table {
             .domain([-100, 100])
             .range([0, this.vizWidth]);
 
+        // this.KeyMap = d3.map(this.headerData, d => d.key);
         this.attachSortHandlers();
         this.drawLegend();
     }
@@ -54,14 +55,76 @@ class Table {
         /**
          * Draw the legend for the bar chart.
          */
-        let labels = ['+75','+50','+25', '','+25', '+50', '+75'];
-        //let ticks = [-75,-50, -25, 25, 50, 75];
+        //let labels1 = ['+75','+50','+25', '','+25', '+50', '+75'];
+        let labels = ['+75','+50','+25','+25', '+50', '+75'];
+        let ticks = [-75,-50, -25, 25, 50, 75];
 
-        let svg = d3.select('#marginAxis')
-            .attr('width', this.vizWidth)
-            .attr('height', this.vizHeight);
+        // version 1 
+
+        // let svg = d3.select('#marginAxis')
+        //     .attr('width', this.vizWidth)
+        //     .attr('height', this.vizHeight);
         
-        let line = svg.append('line')
+        // let line = svg.append('line')
+        //     .attr('x1', (this.vizWidth/2))
+        //     .attr('y1', 0)
+        //     .attr('x2', (this.vizWidth/2))
+        //     .attr('y2', this.vizHeight)
+        //     .style('stroke-width', 2)
+        //     .style('stroke', 'black')
+        //     .style('fill', 'none');
+
+        // let grouped = svg.selectAll('g')
+        //     .data(labels1)
+        //     .enter()
+        //     .append('g')
+        //     .attr('tranform', function(d, i) {
+        //         return `translate(` + (i*37.5+26) + `,0)`;
+        //     });
+
+        // grouped.append('text')
+        //     .attr('class', function(d, i) {
+        //         if (i < 3){return 'biden';}
+        //         else {return 'trump';}
+        //     })
+        //     .attr('dy', '1.5em')
+        //     .text(d => d);
+
+        // version 2
+
+        let axis = d3
+            .axisBottom(this.scaleX)
+            .tickValues(ticks)
+            .tickFormat(function(d, i){return labels[i]});
+        
+        let scale = d3.select('#predictionTable')
+            .select('#marginAxis')
+            .attr('width', this.vizWidth)
+            .attr('height', this.vizHeight)
+            .call(axis); 
+
+        let removingDomain = scale
+            .select('.domain')
+            .attr('stroke-width', 0)
+            ;   
+        let removingTicks = scale
+            .selectAll('g')
+            .selectAll('line')
+            .remove()
+            .selectAll('path')
+            .remove();
+
+        d3.selectAll('g.tick')
+            .select('text')
+            .attr('class', function(d, i){ 
+                if (i < 3){
+                return 'biden'}
+                else {return 'trump'}
+            })
+            .attr('text-size', '30px')
+            .attr('dy', '1.5 em');
+
+        let line = scale.append('line')
             .attr('x1', (this.vizWidth/2))
             .attr('y1', 0)
             .attr('x2', (this.vizWidth/2))
@@ -69,68 +132,6 @@ class Table {
             .style('stroke-width', 2)
             .style('stroke', 'black')
             .style('fill', 'none');
-
-        // version 1 
-
-        let grouped = svg.selectAll('g')
-            .data(labels)
-            .enter().append('g')
-            .attr('tranform', function(d, i) {
-                return 'translate(' + (i*37.5+26) + ',0)';
-            });
-
-        grouped.append('text')
-            .attr('class', function(d, i) {
-                if (i < 3){return 'biden';}
-                else {return 'trump';}
-            })
-            .attr('dy', '1.5em')
-            .text(d => d);
-
-        // version 2
-
-        // let axis = d3
-        //     .axisBottom(this.scaleX)
-        //     .tickValues(ticks)
-        //     .tickFormat(function(d, i){return tickLabels[i]});
-            //.append('text');
-        // Something went wrong with the code below for colors
-        // d3.selectAll('g.tick')
-        //     //.filter(function(d){ return (d <= 0);} )
-        //     // .selectAll('text') //grab the text
-        //     .attr('class', 'trump'); //style with .trump class in CSS
-        //     //.style('fill', 'firebrick'); 
-        // d3.selectAll('g.tick')
-        //     .filter(function(d, i){ return (d >= 0);} )
-        //     .selectAll('text') //grab the text
-        //     .attr('class', 'biden'); //style with a custom class and CSS
-            //.style('fill', 'firebrick');
-        // console.log(d3.selectAll('g.tick.text'));
-        // d3.selectAll('g.tick.text')
-        // // .selectAll('text')
-        //     .attr('class', function(d, i){ 
-        //         if (i > 3){
-        //         return 'trump'}
-        //         else {return 'biden'}
-        //     })
-        //     .text(d=>d);
-            //.selectAll('text') //grab the text
-            //.attr('class', 'biden'); //style with a custom class and CSS
-            //.style('fill', 'firebrick');
-        // let scale = d3.select('#predictionTable')
-        //     .select('#marginAxis')
-        //     .attr('width', this.vizWidth)
-        //     .attr('height', this.vizHeight)
-        //     .call(axis);   
-        // let removingDomain = scale
-        //     .select('.domain')
-        //     .attr('stroke-width', 0);   
-        // let removingTicks = scale
-        //     .selectAll('g')
-        //     .selectAll('line')
-        //     .remove()
-        //     .selectAll('path')
-        //     .remove();
     }
 
     drawTable() {
@@ -235,6 +236,7 @@ class Table {
             point.isForecast = d.isForecast;
         }
         return dataList;
+        //this.KeyMap = [{'wins' : winOddsValue }];
     }
 
     updateHeaders() {
@@ -244,19 +246,15 @@ class Table {
         /**
          * update the column headers based on the sort state
          */
-        //  let that = this;
-        //  that.tableElements.sort(function(a, b){
-        //      // console.log(a.key, b.key);
-        //      if(that.namesColOrder){
-        //          // console.log(d3.ascending(a.key, b.key));
-        //          return d3.ascending(a.key, b.key);
-        //      }
-        //      else return d3.descending(a.key, b.key);
-        //  });
-        //  that.namesColOrder = !that.namesColOrder;
-        //  that.collapseList();
+        //not completed
 
-     
+        let that = this;
+        // d3.selectAll('th')
+        //     .attr('class', 'sorting');
+        // d3.selectAll('i')
+        //     .select('class', 'no-display')
+        //     .remove();   
+
     }
 
     addGridlines(containerSelect, ticks) {
@@ -275,7 +273,6 @@ class Table {
                     .attr('y1', 0)
                     .attr('x2', 150)
                     .attr('y2', this.vizHeight)
-                    //.attr('transform', 'translate(+115, 0)')
                     .style('stroke-width', 2)
                     .style('stroke', 'black')
                     .style('fill', 'none');
@@ -366,14 +363,12 @@ class Table {
         let that = this;
         containerSelect
             .append('circle')
-            .attr('cx', function(d){
-                return (that.scaleX(d.value.marginLow)+that.scaleX(d.value.marginHigh))/2;
-            })
+            .attr('cx', function(d){ return (that.scaleX(d.value.margin)); })
             .attr('cy', 10)
             .attr('r', 5)
             .attr('class', function(d){
-                let color = (that.scaleX(d.value.marginLow)+that.scaleX(d.value.marginHigh))/2;
-                if (color < 150){return 'biden';}
+                let change = that.scaleX(d.value.margin);
+                if (change < 150){return 'biden';}
                 else {return 'trump';}
             })
             .style('stroke', 'black')
@@ -390,22 +385,35 @@ class Table {
          * The handler should sort based on that column and alternate between ascending/descending.
          */
         let that = this;
-        let rowHeaderSelection = d3.select('#columnHeaders')
+        let selection = d3.select('#columnHeaders')
             .selectAll('th')
             .on('click', function(d){
                 onClick(d);
+                //console.log(that.tableData[0]['state'])
             })
-        function onClick(d){
-            let clickText = d.path[0].innerText;
-            if (clickText == 'State'){
-                
-            }
-            // if (clickText == 'Margin of Victory')
-            // if (clickText == 'Wins')
-            that.updateHeaders();
-        }
 
+        // KeyMap is not yet defined
+        //this.KeyMap [{'wins' : this.winOddsValue }];
         
+        function onClick(d){
+            let key = d.path[0].innerText;
+            key = that.KeyMap[key]
+            let ascending = false;
+            that.headerData.map(function(d){
+                if (d.key === key){
+                    d.sorted = true;
+                    d.ascending=!d.ascending;
+                    ascending=d.ascending;
+                }
+                else {d.sorted = false};
+                    // else { return d3.descending(a.headerData.key['state'], b.headerData.key['state']); }
+            });
+            that.tableData.sort(function(a, b){
+                if (ascending){ return d3.ascending(a[key], b[key]); }
+                else { return d3.descending(a[key], b[key]); }
+            });
+
+        }        
     }
 
   
@@ -418,7 +426,14 @@ class Table {
         /**
          * Update table data with the poll data and redraw the table.
          */
-     
+
+        // not completed
+        let that = this;
+        // rowData.sort(function(a, b){
+        //     if (that.tableData.parents === pollData.entries){
+        //         return console.log(rowData);
+        //     }
+        // });     
     }
 
     collapseAll() {

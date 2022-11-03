@@ -1,11 +1,3 @@
-// async function loadData () {
-//     // const covidData = await d3.csv('data/owid-covid.csv');
-//     const data = await d3.json('data/words.json');
-//     return { data };
-//   }
-
-
-
 /**
 * Requests the file and executes a callback with the parsed result once
 * it is available

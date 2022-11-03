@@ -22,7 +22,20 @@
             <h1>The State of the State of the States</h1>
             <div>Name: Milena Belianovich; E-Mail: u1419504@umail.utah.edu; UID: u1419504</div>
         </header>
-        <button id="clear-button">Group</button>
+        <div id="buttons">
+            <!-- <button id="clear-button">Grouped by Topic</button>
+            <button id="clear-button">Show Extremes</button>
+            <label class="switch">
+                <input type="checkbox">
+                <span class="slider round"></span>
+            </label> -->
+            <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
+                <input type="checkbox" value="grouped" class="mdl-checkbox__input continent" checked="">Grouped by Topic
+            </label>
+            <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
+                <input type="checkbox" value="extremes" class="mdl-checkbox__input continent" checked="">Show Extremes
+            </label>
+        </div>
     </div>
     <div id="content">
         <!-- <svg id="button"></svg> -->
@@ -30,6 +43,7 @@
             <!-- <g id="axis"></g> -->
             <g id="chart">
                 <g id="marginAxis"></g>
+                <g id="bubbles"></g>
             </g>
         </svg>
         <svg id="table">

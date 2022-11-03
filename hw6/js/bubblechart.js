@@ -15,33 +15,12 @@ class Chart {
         //this.colorScale = d3.scaleOrdinal(d3.schemeTableau10).domain([...categories]);
 
         this.svg = d3.select("#chart")
-            .attr("width", this.width)
-            .attr("height", this.height);
+            .attr("width", this.width);
+            //.attr("height", this.height);
 
         this.xScale = d3.scaleLinear()
             .domain([-50, 50])
             .range([this.margin.left, this.width - this.margin.left - this.margin.right]);
-
-        this.scale();
-
-        // this.svg.append("g")
-        //     .attr("class", "axis")
-        //     .attr("transform", "translate(0," + (this.height - this.margin.bottom) + ")");
-
-
-
-
-
-
-
-        // this.xAxis = this.svg.axis()
-        //     .scale(xScale)
-        //     .orient("top");
-
-        // // Create line that connects node and point on X axis
-        // this.xLine = this.svg.append("line")
-        //     .attr("stroke", "lightgrey")
-        //     .attr("stroke-dasharray", "1,2");
 
 
         // Create tooltip div and make it invisible
@@ -66,15 +45,16 @@ class Chart {
         //         return +d.total;
         //     }));
 
-        this.colors = d3.scaleOrdinal()
-            // .domain(["asia", "africa", "northAmerica", "europe", "southAmerica", "oceania"])
-            .domain(this.groupedData.map(d => d.category))
-            .range(['#D81B60','#1976D2','#388E3C','#FBC02D','#E64A19','#455A64']);
+        // this.colors = d3.scaleOrdinal()
+        //     // .domain(["asia", "africa", "northAmerica", "europe", "southAmerica", "oceania"])
+        //     .domain(this.groupedData.map(d => d.category))
+        //     .range(['#D81B60','#1976D2','#388E3C','#FBC02D','#E64A19','#455A64']);
 
 
-        //this.drawLegend();
+        this.drawLegend();
         //this.colorScale();
-        this.drawCircles();
+        this.circles();
+        //this.updateCircles();
     }
 
     // assigning colors to each of the categorized values
@@ -82,8 +62,9 @@ class Chart {
         // Colors used for circles depending on continent/geography
         let colors = d3.scaleOrdinal()
             // .domain(["asia", "africa", "northAmerica", "europe", "southAmerica", "oceania"])
-            .domain(this.groupedData.map(d => d.category))
-            .range(['#D81B60','#1976D2','#388E3C','#FBC02D','#E64A19','#455A64']);
+            // // .domain(this.groupedData.map(d => d.category))
+            // .domain(this.data.map({ d,i => d.category[i]; }))
+            // .range(['#D81B60','#1976D2','#388E3C','#FBC02D','#E64A19','#455A64']);
 
         // this.data(d=> {
         //     if d.category
@@ -98,30 +79,44 @@ class Chart {
     }
 
     drawLegend(){
+        let svgSelect = d3.select("#marginAxis")
 
-        this.svg.selectAll('text')
+        svgSelect.selectAll('text')
             .data([-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50])
             .join('text')
             .attr('x', d => this.xScale(d))
-            .attr('y', this.height - 3)
+            .attr('y', this.margin.bottom*2)
             .text(d => `${Math.abs(d)}`)
-            .classed('label', true)
-            .orient('top');
+            .attr('text-anchor', 'middle');
+            //.classed('label', true)
+            //.orient('top');
 
-        this.svg.select('#axis')
+        svgSelect
             .append('text')
             .text('Democratic Leaning')
-            .attr('x', this.margin.left)
-            .attr('y', this.margin.bottom);
+            .attr('x', 0)
+            .attr('y', 10);
 
-        this.svg.select('#axis')
+        svgSelect
             .append('text')
             .text('Republican Leaning')
-            .attr('x', this.margin - this.margin.left - this.margin.right)
-            .attr('y', this.margin.bottom);
+            .attr('x', 770)
+            .attr('y', 10);
+
+        svgSelect
+            .selectAll('.line')
+            .data([-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50])
+            .join('line')
+            .attr('x1', d => this.xScale(d))
+            .attr('x2', d => this.xScale(d))
+            .attr('y1', this.margin.bottom*2 + 5)
+            .attr('y2', this.margin.bottom*3 - 5)
+            .attr('stroke', 'black')
+            .attr('stoke-width', 0.1);
+        
     }
 
-    drawCircles(){
+    updateCircles(){
 
         // const grouped = this.data.group(data, (d) => d.category)
 
@@ -130,7 +125,12 @@ class Chart {
         //     .domain(this.grouped.map(d => d.category))
         //     .range(['#D81B60','#1976D2','#388E3C','#FBC02D','#E64A19','#455A64']);
 
-        let circles = this.svg
+        let svgSelect = d3.selectAll("#bubbles")
+            .attr("width", this.width )
+            //.attr("height", 10000)
+            .attr("transform", `translate(0, 120)`);
+
+        let circles = svgSelect
             .selectAll("circle")
             .data(this.data, (d) => d.position);
 
@@ -146,69 +146,50 @@ class Chart {
             .append("circle")
             .attr("class", "position")
             .attr("cx", 0)
-            .attr("cy", (this.height / 2) - this.margin.bottom / 2)
-            .attr("r", 6)
+            .attr("cy", ((this.height - this.margin.bottom) / 2) - this.margin.bottom / 2)
+            .attr("r", (d)=> d.total*0.3)
             //.attr("fill", function(d){ return this.colors(d.category)})
-            .merge(circles)
-            .transition()
-            .duration(2000)
+            //.merge(circles)
+            // .transition()
+            // .duration(2000)
             .attr("cx", function(d) { return d.x; })
             .attr("cy", function(d) { return d.y; });
     }
 
+    circles(){
+        // let svgSelect = d3.selectAll("#bubbles")
+        //     .attr("width", this.width )
+        //     //.attr("height", 10000)
+        //     .attr("transform", `translate(0, 120)`);
+
+        let colors = d3.scaleOrdinal()
+            // .domain(["asia", "africa", "northAmerica", "europe", "southAmerica", "oceania"])
+            // // .domain(this.groupedData.map(d => d.category))
+            .domain(this.data.map( (d,i) => d.category[i] ))
+            .range(['#FF7F50', '#DE3163', '#9FE2BF', '#40E0D0', '#6495ED', '#CCCCFF']);
 
 
-
-    scale(){
-
-        let labels = ['50', '40', '30', '20', '10', '0', '10', '20', '30', '40', '50'];
-        let ticks = [-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50];
-
-        let axis = d3
-            .axisTop(this.xScale)
-            .tickValues([-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50])
-            // .tickFormat(function(d, i){return labels[i]});
-            .tickFormat((d, i) => ['50', '40', '30', '20', '10', '0', '10', '20', '30', '40', '50'][i]);
-        
-        let scale = d3.select('#chart')
-            .select('#marginAxis')
-            .attr('width', this.width)
-            .attr('height', this.height)
-            .call(axis); 
-
-        // let removingDomain = scale
-        //     .select('.domain')
-        //     .attr('stroke-width', 0)
-            ;   
-        // let removingTicks = scale
-        //     .selectAll('g')
-        //     .selectAll('line')
-        //     .remove()
-        //     .selectAll('path')
-        //     .remove();
-
-        d3.selectAll('g.tick')
-            .select('text')
-            // .attr('class', function(d, i){ 
-            //     if (i < 3){
-            //     return 'biden'}
-            //     else {return 'trump'}
-            // })
-            .attr('text-size', '30px')
-            .attr('fill', 'blue')
-            .attr('dy', '2 em');
-
-        let line = scale.append('line')
-            .attr('x1', (this.width/2))
-            .attr('y1', this.margin.bottom)
-            .attr('x2', (this.width/2))
-            .attr('y2', this.height/4)
-            .style('stroke-width', 2)
-            .style('stroke', 'lightgrey')
-            .style('fill', 'none');
-    }
-
-
-
-    
+        this.svg
+            .select('#bubbles')
+            .attr("width", this.width )
+            .attr("transform", `translate(0, 120)`)
+            .selectAll('.circle')
+            .data(this.data, (d) => d.position)
+            .join('circle')
+            .attr('fill', (d, i) => colors(d.category))
+            // .attr('fill', "red")
+            .attr('stroke', 'black')
+            .attr('stroke-width', 0.1)
+            .attr("cx", (d)=> d.sourceX)
+            .attr("cy", (d)=> d.sourceY)
+            .attr("r", (d)=> d.total*0.3)
+            //.attr('stroke', ([continent, values]) => this.colorScale(values[0].iso_code))
+            .attr('stroke-width', 1);
+            // .attr('d', ([continent, values]) => {
+            //     return d3.line()
+            //     .x((d) => this.xAxis(new Date(d.date)) + this.yAxisPadding)
+            //     .y((d) => this.yAxis(d.total_cases_per_million))
+            //     (values);
+            // });
+    }    
 }

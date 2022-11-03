@@ -15,15 +15,29 @@
 
 #content {
     margin: auto;
-    width: 1550px;
+    width: 1650px;
 }
 
 #bubblechart {
-    width: 800px;
+    width: 900px;
     height: 500px;
 }
 
 #table {
     width: 700px;
     height: 500px;
+}
+
+.tooltip {
+    position: absolute;
+    text-align: left;
+    color: white;
+    white-space: normal;
+    padding: 6px;
+    font-size: 14px;
+    background: rgb(96,125,139);
+    border: 1px solid rgb(96,125,139);
+    border-radius: 2px;
+    pointer-events: none;
+    cursor: none;
 }

@@ -8,11 +8,11 @@ class Chart {
         this.chartState = {};
 
         // Use d3 group to get the line data in groups
-        const groupedData = d3.group(data, (d) => d.category);
+        const groupedData = d3.group(this.data, (d) => d.category);
 
         // Create a color scale
-        const categories = groupedData.keys();
-        this.colorScale = d3.scaleOrdinal(d3.schemeTableau10).domain([...categories]);
+        this.categories = groupedData.keys();
+        //this.colorScale = d3.scaleOrdinal(d3.schemeTableau10).domain([...categories]);
 
         this.svg = d3.select("#chart")
             .attr("width", this.width)
@@ -66,8 +66,15 @@ class Chart {
         //         return +d.total;
         //     }));
 
+        this.colors = d3.scaleOrdinal()
+            // .domain(["asia", "africa", "northAmerica", "europe", "southAmerica", "oceania"])
+            .domain(this.groupedData.map(d => d.category))
+            .range(['#D81B60','#1976D2','#388E3C','#FBC02D','#E64A19','#455A64']);
+
 
         //this.drawLegend();
+        //this.colorScale();
+        this.drawCircles();
     }
 
     // assigning colors to each of the categorized values
@@ -114,6 +121,41 @@ class Chart {
             .attr('y', this.margin.bottom);
     }
 
+    drawCircles(){
+
+        // const grouped = this.data.group(data, (d) => d.category)
+
+        // let colors = d3.scaleOrdinal()
+        //     // .domain(["asia", "africa", "northAmerica", "europe", "southAmerica", "oceania"])
+        //     .domain(this.grouped.map(d => d.category))
+        //     .range(['#D81B60','#1976D2','#388E3C','#FBC02D','#E64A19','#455A64']);
+
+        let circles = this.svg
+            .selectAll("circle")
+            .data(this.data, (d) => d.position);
+
+        // circles.exit()
+        //     .transition()
+        //     .duration(1000)
+        //     .attr("cx", 0)
+        //     .attr("cy", (height / 2) - margin.bottom / 2)
+        //     .remove();
+
+        circles
+            .enter()
+            .append("circle")
+            .attr("class", "position")
+            .attr("cx", 0)
+            .attr("cy", (this.height / 2) - this.margin.bottom / 2)
+            .attr("r", 6)
+            //.attr("fill", function(d){ return this.colors(d.category)})
+            .merge(circles)
+            .transition()
+            .duration(2000)
+            .attr("cx", function(d) { return d.x; })
+            .attr("cy", function(d) { return d.y; });
+    }
+
 
 
 
@@ -154,13 +196,13 @@ class Chart {
             // })
             .attr('text-size', '30px')
             .attr('fill', 'blue')
-            .attr('dy', '1.5 em');
+            .attr('dy', '2 em');
 
         let line = scale.append('line')
             .attr('x1', (this.width/2))
-            .attr('y1', 0)
+            .attr('y1', this.margin.bottom)
             .attr('x2', (this.width/2))
-            .attr('y2', this.height)
+            .attr('y2', this.height/4)
             .style('stroke-width', 2)
             .style('stroke', 'lightgrey')
             .style('fill', 'none');

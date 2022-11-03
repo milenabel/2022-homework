@@ -5,6 +5,7 @@ class Chart {
         this.height = 500;
         this.width = 900;
         this.margin = ({top: 0, right: 20, bottom: 20, left: 20});
+        this.chartState = {};
 
         // Use d3 group to get the line data in groups
         const groupedData = d3.group(data, (d) => d.category);
@@ -13,43 +14,60 @@ class Chart {
         const categories = groupedData.keys();
         this.colorScale = d3.scaleOrdinal(d3.schemeTableau10).domain([...categories]);
 
-        this.svg = d3.select("#bubblechart")
+        this.svg = d3.select("#chart")
             .attr("width", this.width)
             .attr("height", this.height);
 
         this.xScale = d3.scaleLinear()
             .domain([-50, 50])
-            .range([0, this.width]);
+            .range([this.margin.left, this.width - this.margin.left - this.margin.right]);
 
-        // let xScale = d3.scaleLinear()
-        //     .range([this.margin.left, this.width - this.margin.right]);
+        this.scale();
 
-        this.svg.append("g")
-            .attr("class", "axis")
-            .attr("transform", "translate(0," + (this.height - this.margin.bottom) + ")");
+        // this.svg.append("g")
+        //     .attr("class", "axis")
+        //     .attr("transform", "translate(0," + (this.height - this.margin.bottom) + ")");
+
+
+
+
+
+
+
+        // this.xAxis = this.svg.axis()
+        //     .scale(xScale)
+        //     .orient("top");
 
         // // Create line that connects node and point on X axis
         // this.xLine = this.svg.append("line")
         //     .attr("stroke", "lightgrey")
         //     .attr("stroke-dasharray", "1,2");
 
+
         // Create tooltip div and make it invisible
-        this.tooltip = d3.select("#bubblechart").append("div")
+        this.tooltip = d3.select("#chart").append("div")
             .attr("class", "tooltip")
             .style("opacity", 0);
 
         // Append x axis text
-        this.svg.select('#x-axis')
-            .append('text')
-            .text('Democratic Leaning')
-            .attr('x', this.margin.left)
-            .attr('y', this.margin.bottom);
+        // this.svg.select('#x-axis')
+        //     .append('text')
+        //     .text('Democratic Leaning')
+        //     .attr('x', this.margin.left)
+        //     .attr('y', this.margin.bottom);
 
-        this.svg.select('#x-axis')
-            .append('text')
-            .text('Republican Leaning')
-            .attr('x', this.margin - this.margin.left - this.margin.right)
-            .attr('y', this.margin.bottom);
+        // this.svg.select('#x-axis')
+        //     .append('text')
+        //     .text('Republican Leaning')
+        //     .attr('x', this.margin - this.margin.left - this.margin.right)
+        //     .attr('y', this.margin.bottom);
+        
+        // this.xScale.domain(d3.extent(data, function (d) {
+        //         return +d.total;
+        //     }));
+
+
+        //this.drawLegend();
     }
 
     // assigning colors to each of the categorized values
@@ -74,13 +92,81 @@ class Chart {
 
     drawLegend(){
 
-        svg.selectAll('text')
+        this.svg.selectAll('text')
             .data([-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50])
             .join('text')
-            .attr('x', d => this.scaleX(d))
+            .attr('x', d => this.xScale(d))
             .attr('y', this.height - 3)
-            .text(d => `+${Math.abs(d)}`)
-            // .classed('label', true)
+            .text(d => `${Math.abs(d)}`)
+            .classed('label', true)
+            .orient('top');
+
+        this.svg.select('#axis')
+            .append('text')
+            .text('Democratic Leaning')
+            .attr('x', this.margin.left)
+            .attr('y', this.margin.bottom);
+
+        this.svg.select('#axis')
+            .append('text')
+            .text('Republican Leaning')
+            .attr('x', this.margin - this.margin.left - this.margin.right)
+            .attr('y', this.margin.bottom);
     }
+
+
+
+
+    scale(){
+
+        let labels = ['50', '40', '30', '20', '10', '0', '10', '20', '30', '40', '50'];
+        let ticks = [-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50];
+
+        let axis = d3
+            .axisTop(this.xScale)
+            .tickValues([-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50])
+            // .tickFormat(function(d, i){return labels[i]});
+            .tickFormat((d, i) => ['50', '40', '30', '20', '10', '0', '10', '20', '30', '40', '50'][i]);
+        
+        let scale = d3.select('#chart')
+            .select('#marginAxis')
+            .attr('width', this.width)
+            .attr('height', this.height)
+            .call(axis); 
+
+        // let removingDomain = scale
+        //     .select('.domain')
+        //     .attr('stroke-width', 0)
+            ;   
+        // let removingTicks = scale
+        //     .selectAll('g')
+        //     .selectAll('line')
+        //     .remove()
+        //     .selectAll('path')
+        //     .remove();
+
+        d3.selectAll('g.tick')
+            .select('text')
+            // .attr('class', function(d, i){ 
+            //     if (i < 3){
+            //     return 'biden'}
+            //     else {return 'trump'}
+            // })
+            .attr('text-size', '30px')
+            .attr('fill', 'blue')
+            .attr('dy', '1.5 em');
+
+        let line = scale.append('line')
+            .attr('x1', (this.width/2))
+            .attr('y1', 0)
+            .attr('x2', (this.width/2))
+            .attr('y2', this.height)
+            .style('stroke-width', 2)
+            .style('stroke', 'lightgrey')
+            .style('fill', 'none');
+    }
+
+
+
     
 }

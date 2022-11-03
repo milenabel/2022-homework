@@ -41,3 +41,7 @@
     pointer-events: none;
     cursor: none;
 }
+
+.label{
+    text-anchor: middle;
+}

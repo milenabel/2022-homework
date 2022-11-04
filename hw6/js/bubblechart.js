@@ -26,7 +26,7 @@ class Chart {
 
 
         // Create tooltip div and make it invisible
-        this.tooltip = d3.select("#chart").append("div")
+        this.tooltip = d3.select("#bubble").append("div")
             .attr("class", "tooltip")
             .style("opacity", 0);
 
@@ -81,27 +81,6 @@ class Chart {
         //this.updateCircles();
     }
 
-    // assigning colors to each of the categorized values
-    colorScale(){
-        // Colors used for circles depending on continent/geography
-        let colors = d3.scaleOrdinal()
-            // .domain(["asia", "africa", "northAmerica", "europe", "southAmerica", "oceania"])
-            // // .domain(this.groupedData.map(d => d.category))
-            // .domain(this.data.map({ d,i => d.category[i]; }))
-            // .range(['#D81B60','#1976D2','#388E3C','#FBC02D','#E64A19','#455A64']);
-
-        // this.data(d=> {
-        //     if d.category
-        // });
-
-        // d3.select("#asiaColor").style("color", colors("asia"));
-        // d3.select("#africaColor").style("color", colors("africa"));
-        // d3.select("#northAmericaColor").style("color", colors("northAmerica"));
-        // d3.select("#southAmericaColor").style("color", colors("southAmerica"));
-        // d3.select("#europeColor").style("color", colors("europe"));
-        // d3.select("#oceaniaColor").style("color", colors("oceania"));
-    }
-
     drawLegend(){
         let svgSelect = d3.select("#marginAxis")
 
@@ -148,17 +127,17 @@ class Chart {
             .selectAll('.circle')
             .data(this.data, (d) => d.position)
 
-        circles
-            .exit()
-            .transition()
-            .delay(2000)
-            //.duration(1000)
-            .attr("cx", 0)
-            .attr("cy", (this.height / 2) - this.margin.bottom / 2)
-            .remove();
+        // circles
+        //     .exit()
+        //     .transition()
+        //     .delay(2000)
+        //     //.duration(1000)
+        //     .attr("cx", 0)
+        //     .attr("cy", (this.height / 2) - this.margin.bottom / 2)
+        //     .remove();
 
         circles
-            .enter()
+            //.enter()
             .join('circle')
             //.enter()
             .attr('fill', (d, i) => this.colors(d.category))
@@ -210,6 +189,7 @@ class Chart {
 
     circles(){
         this.chartState = false;
+        let div = d3.select("#bubbles");
         this.svg
             .select('#bubbles')
             .attr("width", this.width )
@@ -224,6 +204,63 @@ class Chart {
             .attr("cx", (d)=> d.sourceX)
             .attr("cy", (d)=> d.sourceY)
             .attr("r", (d)=> d.total*0.3)
-            .attr('stroke-width', 1);
+            .attr('stroke-width', 1)
+            .on("mouseover", (d) => {		
+                div.transition()		
+                    .duration(200)		
+                    .style("opacity", .7);		
+                // div	.html(formatTime(d.date) + "<br/>"  + d.close)	
+                //     .style("left", (d3.event.pageX) + "px")		
+                //     .style("top", (d3.event.pageY - 28) + "px");	
+                })					
+            .on("mouseout", (d) => {		
+                div.transition()		
+                    .duration(500)		
+                    .style("opacity", 1);	
+            });
     }    
+
+    tooltips(){
+        // Show tooltip when hovering over circle (data for respective country)
+        d3.selectAll(".countries").on("mousemove", function(d) {
+            tooltip.html(`Country: <strong>${d.country}</strong><br>
+                          ${chartState.legend.slice(0, chartState.legend.indexOf(","))}: 
+                          <strong>${d3.format(",")(d[chartState.measure])}</strong>
+                          ${chartState.legend.slice(chartState.legend.lastIndexOf(" "))}`)
+                .style('top', d3.event.pageY - 12 + 'px')
+                .style('left', d3.event.pageX + 25 + 'px')
+                .style("opacity", 0.9);
+
+            xLine.attr("x1", d3.select(this).attr("cx"))
+                .attr("y1", d3.select(this).attr("cy"))
+                .attr("y2", (height - margin.bottom))
+                .attr("x2",  d3.select(this).attr("cx"))
+                .attr("opacity", 1);
+
+        }).on("mouseout", function(_) {
+            tooltip.style("opacity", 0);
+            xLine.attr("opacity", 0);
+        });
+    }
+
+    // // assigning colors to each of the categorized values
+    // colorScale(){
+    //     // Colors used for circles depending on continent/geography
+    //     let colors = d3.scaleOrdinal()
+    //         // .domain(["asia", "africa", "northAmerica", "europe", "southAmerica", "oceania"])
+    //         // // .domain(this.groupedData.map(d => d.category))
+    //         // .domain(this.data.map({ d,i => d.category[i]; }))
+    //         // .range(['#D81B60','#1976D2','#388E3C','#FBC02D','#E64A19','#455A64']);
+
+    //     // this.data(d=> {
+    //     //     if d.category
+    //     // });
+
+    //     // d3.select("#asiaColor").style("color", colors("asia"));
+    //     // d3.select("#africaColor").style("color", colors("africa"));
+    //     // d3.select("#northAmericaColor").style("color", colors("northAmerica"));
+    //     // d3.select("#southAmericaColor").style("color", colors("southAmerica"));
+    //     // d3.select("#europeColor").style("color", colors("europe"));
+    //     // d3.select("#oceaniaColor").style("color", colors("oceania"));
+    // }
 }

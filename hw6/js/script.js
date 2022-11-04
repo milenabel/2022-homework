@@ -26,4 +26,5 @@ function fetchJSONFile (path, callback) {
     // chart.buildTree();
     // chart.renderTree();
     const table = new Table(data);
+    console.log(data)
   });

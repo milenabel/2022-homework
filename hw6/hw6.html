@@ -7,9 +7,7 @@
     <link rel="stylesheet" href="styles.css" />
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Work+Sans:400,700&display=swap" rel="stylesheet">
-    <script src="js/bubblechart.js"></script>
-    <script src="js/table.js"></script>
-    <script src="js/script.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
     
        <!-- Bootstrap styling if you want to use it:  -->
     <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
@@ -29,48 +27,59 @@
                 <input type="checkbox">
                 <span class="slider round"></span>
             </label> -->
-            <label id="clear-button" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
-                <input id="clear-button" type="checkbox" value="grouped" class="mdl-checkbox__input continent" >Grouped by Topic
+            <!-- <label id="clear-button" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
+                <input id="clear-button" type="checkbox" value="grouped" class="mdl-checkbox__input continent">Grouped by Topic
             </label>
-            <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
-                <input type="checkbox" value="extremes" class="mdl-checkbox__input continent" checked="">Show Extremes
-            </label>
+            <label id="clear-button1" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
+                <input id="clear-button1" type="checkbox" value="extremes" class="mdl-checkbox__input continent">Show Extremes
+            </label> -->
         </div>
     </div>
-    <div id="content" height="auto">
-        <!-- <svg id="button"></svg> -->
-        <svg id="bubblechart">
-            <!-- <g id="axis"></g> -->
-            <g id="chart">
-                <g id="marginAxis"></g>
-                <g id="bubbles"></g>
-            </g>
-        </svg>
-        <svg id="table">
-            <!-- <table id="table">
+    <div class="row" id="content" height="auto">
+        <div class="column">
+            <label id="clear-button" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
+                <input id="clear-button" type="checkbox" value="grouped" class="mdl-checkbox__input continent">Grouped by Topic
+            </label>
+            <label id="clear-button1" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
+                <input id="clear-button1" type="checkbox" value="extremes" class="mdl-checkbox__input continent">Show Extremes
+            </label>
+            <svg id="bubblechart">
+                <!-- <g id="axis"></g> -->
+                <g id="chart">
+                    <g id="marginAxis"></g>
+                    <g id="bubbles"></g>
+                </g>
+            </svg>
+        </div>
+        <div class="column">
+            <table id="predictionTable">
                 <thead>
                 <tr id="columnHeaders">
-                    <th class="sortable">State <i class="fas no-display"></i></th>
-                    <th class="sortable">Margin of Victory <i class="fas no-display"></i></th>
-                    <th class="sortable">Wins <i class="fas no-display"></i></th>
+                    <th class="sortable">Phrase <i class="fas no-display"></i></th>
+                    <th class="sortable">Frequency <i class="fas no-display"></i></th>
+                    <th class="sortable">Percentage <i class="fas no-display"></i></th>
+                    <th class="sortable">Total <i class="fas no-display"></i></th>
                 </tr>
                 <tr>
                     <td></td>
-                    <td><svg id="marginAxis"></svg></td>
+                    <td><svg id="marginaxis1"></svg></td>
+                    <td><svg id="marginaxis2"></svg></td>
                     <td></td>
                 </tr>
                 </thead>
                 <tbody id="predictionTableBody">
     
                 </tbody>
-            </table> -->
-            <g id="x-axis"></g>
-            <g id="y-axis"></g>
-            <g id="lines"></g>
-            <g id="overlay"><line></line></g>
-        </svg>
+            </table>
+        </div>
+      </div>
+        <!-- <svg id="button"></svg> -->
         <!-- <button id="clear-button">Clear Selected Countries</button> -->
-    </div>
+
+    <script src="js/bubblechart.js"></script>
+    <script src="js/table.js"></script>
+    <script src="js/script.js"></script>
+
 </body>
 
 </html>

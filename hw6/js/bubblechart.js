@@ -4,7 +4,7 @@ class Chart {
         this.data = data;
         this.height = 500;
         this.width = 900;
-        this.margin = ({top: 0, right: 20, bottom: 20, left: 20});
+        this.margin = ({top: 20, right: 20, bottom: 20, left: 20});
         this.chartState = false;
         this.button = d3.select("#clear-button")
 
@@ -96,13 +96,13 @@ class Chart {
             .append('text')
             .text('Democratic Leaning')
             .attr('x', 0)
-            .attr('y', 10);
+            .attr('y', this.margin.top);
 
         svgSelect
             .append('text')
             .text('Republican Leaning')
             .attr('x', 770)
-            .attr('y', 10);
+            .attr('y', this.margin.top);
 
         svgSelect
             .selectAll('.line')
@@ -206,9 +206,10 @@ class Chart {
             .attr("r", (d)=> d.total*0.3)
             .attr('stroke-width', 1)
             .on("mouseover", (d) => {		
-                div.transition()		
+                div.selectAll('.circle')
+                    .transition()		
                     .duration(200)		
-                    .style("opacity", .7);		
+                    .style("opacity", .5);		
                 // div	.html(formatTime(d.date) + "<br/>"  + d.close)	
                 //     .style("left", (d3.event.pageX) + "px")		
                 //     .style("top", (d3.event.pageY - 28) + "px");	

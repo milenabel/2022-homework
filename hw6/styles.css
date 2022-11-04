@@ -1,13 +1,25 @@
+.column {
+    float: left;
+    width: 50%;
+  }
+  
+  /* Clear floats after the columns */
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
 .header {
     width: 600px;
     margin: auto;
     text-align: center;
     margin-bottom: 50px;
 }
-button {
+/* button {
     margin:0 auto;
     display:block;
-}
+} */
 /* #buttons {
     width: 400px;
     margin: auto;
@@ -17,7 +29,7 @@ button {
 
 #content {
     margin: auto;
-    width: 1650px;
+    width: 2000px;
 }
 
 #bubblechart {
@@ -46,4 +58,97 @@ button {
 
 .label{
     text-anchor: middle;
+}
+
+table {
+    border-collapse: collapse;
+    font: 14px sans-serif;
+}
+
+th:first-of-type {
+    text-align: left;
+}
+
+th {
+    font-weight: normal;
+    text-align: center;
+    padding-right: 6px;
+    min-width: 125px;
+}
+
+th:last-of-type
+{
+    text-align: right;
+}
+
+td:first-of-type {
+    text-align: left;
+}
+
+td {
+    text-align: center;
+}
+
+td:last-of-type
+{
+    text-align: right;
+}
+
+.sorting {
+    background: black;
+    color: white;
+}
+
+.sortable {
+    user-select: none;
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 6px;
+}
+
+.sortable:hover {
+    background: #d1d1d1;
+}
+
+.sortable.sorting:hover {
+    background: #232323;
+}
+
+.trump {
+    color: firebrick;
+    fill: firebrick;
+}
+
+.biden {
+    color: steelblue;
+    fill: steelblue;
+}
+
+td {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-right: 5px;
+    padding-left: 5px;
+    color:black;
+}
+
+#predictionTable td {
+    line-height: 0;
+}
+
+#predictionTable tbody tr {
+    cursor: pointer;
+}
+
+tbody tr:hover {
+    background-color: #efefef;
+}
+
+.label{
+    text-anchor: middle;
+}
+
+@font-face {
+    font-family: 'font1';
+    src: url('assets/font1.ttf');
 }

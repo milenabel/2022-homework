@@ -3,20 +3,23 @@ class Table {
     /**
      * Creates a Table Object
      */
-    constructor(data) {
-        this.data = data;
-        this.tableData = [...data];
+    constructor(forecastData, pollData) {
+        this.forecastData = forecastData;
+        this.tableData = [...forecastData];
+        console.log(forecastData);
+        console.log(this.tableData);
         // add useful attributes
         for (let forecast of this.tableData)
         {
             forecast.isForecast = true;
             forecast.isExpanded = false;
         }
+        this.pollData = pollData;
         this.headerData = [
             {
                 sorted: false,
                 ascending: false,
-                key:'phrase'
+                key: 'state'
             },
             {
                 sorted: false,
@@ -27,13 +30,7 @@ class Table {
             {
                 sorted: false,
                 ascending: false,
-                key: 'mean_netpartymargin',
-                alterFunc: d => Math.abs(+d)
-            },
-            {
-                sorted: false,
-                ascending: false,
-                key: 'total',
+                key: 'winner_Rparty',
                 alterFunc: d => +d
             },
         ]
@@ -42,52 +39,99 @@ class Table {
         this.vizHeight = 30;
         this.smallVizHeight = 20;
 
-        this.scaleX1 = d3.scaleLinear()
-            .domain([0.0, 1.0])
-            .range([0, this.vizWidth]);
-
-        this.scaleX2 = d3.scaleLinear()
+        this.scaleX = d3.scaleLinear()
             .domain([-100, 100])
             .range([0, this.vizWidth]);
 
+        // this.KeyMap = d3.map(this.headerData, d => d.key);
         this.attachSortHandlers();
         this.drawLegend();
     }
 
     drawLegend() {
+        ////////////
+        // PART 2 //
+        ////////////
         /**
          * Draw the legend for the bar chart.
          */
+        //let labels1 = ['+75','+50','+25', '','+25', '+50', '+75'];
+        let labels = ['+75','+50','+25','+25', '+50', '+75'];
+        let ticks = [-75,-50, -25, 25, 50, 75];
 
-        let svgSelect1 = d3.select('#marginaxis1')
-        .attr('width', this.vizWidth)
-        .attr('height', this.vizHeight);
+        // version 1 
+
+        // let svg = d3.select('#marginAxis')
+        //     .attr('width', this.vizWidth)
+        //     .attr('height', this.vizHeight);
         
-        this.addGridlines(svgSelect, [0]);
+        // let line = svg.append('line')
+        //     .attr('x1', (this.vizWidth/2))
+        //     .attr('y1', 0)
+        //     .attr('x2', (this.vizWidth/2))
+        //     .attr('y2', this.vizHeight)
+        //     .style('stroke-width', 2)
+        //     .style('stroke', 'black')
+        //     .style('fill', 'none');
 
-        const pad = 3;
+        // let grouped = svg.selectAll('g')
+        //     .data(labels1)
+        //     .enter()
+        //     .append('g')
+        //     .attr('tranform', function(d, i) {
+        //         return `translate(` + (i*37.5+26) + `,0)`;
+        //     });
 
-        svgSelect1.selectAll('text')
-            .data([-100, -50, 0, 50, 100])
-            .join('text')
-            .attr('x', d => this.scaleX2(d))
-            .attr('y', this.vizHeight - pad)
-            .text(d => `+${Math.abs(d)}`)
-            .attr('class', d => d < 0 ? 'biden' : 'trump')
-            .classed('label', true)
+        // grouped.append('text')
+        //     .attr('class', function(d, i) {
+        //         if (i < 3){return 'biden';}
+        //         else {return 'trump';}
+        //     })
+        //     .attr('dy', '1.5em')
+        //     .text(d => d);
 
-        let svgSelect1 = d3.select('#marginaxis2')
+        // version 2
+
+        let axis = d3
+            .axisBottom(this.scaleX)
+            .tickValues(ticks)
+            .tickFormat(function(d, i){return labels[i]});
+        
+        let scale = d3.select('#predictionTable')
+            .select('#marginAxis')
             .attr('width', this.vizWidth)
-            .attr('height', this.vizHeight);
+            .attr('height', this.vizHeight)
+            .call(axis); 
 
-        svgSelect.selectAll('text')
-            .data([-100, -50, 0, 50, 100])
-            .join('text')
-            .attr('x', d => this.scaleX2(d))
-            .attr('y', this.vizHeight - pad)
-            .text(d => `+${Math.abs(d)}`)
-            .attr('class', d => d < 0 ? 'biden' : 'trump')
-            .classed('label', true)
+        let removingDomain = scale
+            .select('.domain')
+            .attr('stroke-width', 0)
+            ;   
+        let removingTicks = scale
+            .selectAll('g')
+            .selectAll('line')
+            .remove()
+            .selectAll('path')
+            .remove();
+
+        d3.selectAll('g.tick')
+            .select('text')
+            .attr('class', function(d, i){ 
+                if (i < 3){
+                return 'biden'}
+                else {return 'trump'}
+            })
+            .attr('text-size', '30px')
+            .attr('dy', '1.5 em');
+
+        let line = scale.append('line')
+            .attr('x1', (this.vizWidth/2))
+            .attr('y1', 0)
+            .attr('x2', (this.vizWidth/2))
+            .attr('y2', this.vizHeight)
+            .style('stroke-width', 2)
+            .style('stroke', 'black')
+            .style('fill', 'none');
     }
 
     drawTable() {
@@ -104,20 +148,32 @@ class Table {
                     this.toggleRow(d, this.tableData.indexOf(d));
                 }
             });
+        
+        //console.log(rowSelection);
 
-        let selection = rowSelection.selectAll('td')
+        let forecastSelection = rowSelection.selectAll('td')
             .data(this.rowToCellDataTransform)
             .join('td')
             .attr('class', d => d.class);
+        //console.log(forecastSelection);
 
+        ////////////
+        // PART 1 // 
+        ////////////
+        /**
+         * with the forecastSelection you need to set the text based on the dat value as long as the type is 'text'
+         */
+        let filteredData = forecastSelection.filter(d => d.type === 'text');
+        //console.log(filteredData);
+        let rows = filteredData
+            .append('text')
+            .text((d) => {
+                    return Object.values(d);
+                })
+            .join('td').text(d => d.value)
 
-
-        // ++++++++ BEGIN CUT +++++++++++
-        selection.filter(d => d.type === 'text').text(d => d.phrase);
-        console.log(selection);
-        // ++++++++  END CUT  +++++++++++
-
-        let vizSelection = selection.filter(d => d.type === 'viz');
+        let vizSelection = forecastSelection.filter(d => d.type === 'viz');
+        console.log(vizSelection);
 
         let svgSelect = vizSelection.selectAll('svg')
             .data(d => [d])
@@ -126,13 +182,12 @@ class Table {
             .attr('height', d => d.isForecast ? this.vizHeight : this.smallVizHeight);
 
         let grouperSelect = svgSelect.selectAll('g')
-            .data(d => [d, d, d, d])
+            .data(d => [d, d, d])
             .join('g');
 
-        this.addGridlines2(grouperSelect.filter((d,i) => i === 0), [-100, -50, 0, 50, 100]);
-        this.addGridlines1(grouperSelect.filter((d,i) => i === 0), [0.0, 0.5, 1.0]);
-        this.addRectangles2(grouperSelect.filter((d,i) => i === 1));
-        this.addRectangles1(grouperSelect.filter((d,i) => i === 1));
+        this.addGridlines(grouperSelect.filter((d,i) => i === 0), [-75, -50, -25, 0, 25, 50, 75]);
+        this.addRectangles(grouperSelect.filter((d,i) => i === 1));
+        this.addCircles(grouperSelect.filter((d,i) => i === 2));
     }
 
     rowToCellDataTransform(d) {
@@ -154,8 +209,8 @@ class Table {
         let winChance;
         if (d.isForecast)
         {
-            const trumpWinChance = +d.percent_of_r_speeches;
-            const bidenWinChance = +d.percent_of_d_speeches;
+            const trumpWinChance = +d.winner_Rparty;
+            const bidenWinChance = +d.winner_Dparty;
 
             const trumpWin = trumpWinChance > bidenWinChance;
             const winOddsValue = 100 * Math.max(trumpWinChance, bidenWinChance);
@@ -181,119 +236,143 @@ class Table {
             point.isForecast = d.isForecast;
         }
         return dataList;
+        //this.KeyMap = [{'wins' : winOddsValue }];
     }
 
     updateHeaders() {
+        ////////////
+        // PART 7 // 
+        ////////////
         /**
          * update the column headers based on the sort state
          */
-        const colSelect = d3.select('#columnHeaders');
+        //not completed
 
-        colSelect.selectAll('th')
-            .data(this.headerData)
-            .classed('sorting', d => d.sorted)
+        let that = this;
+        // d3.selectAll('th')
+        //     .attr('class', 'sorting');
+        // d3.selectAll('i')
+        //     .select('class', 'no-display')
+        //     .remove();   
 
-        colSelect.selectAll('i')
-            .data(this.headerData)
-            .classed('no-display', d => !d.sorted)
-            .classed('fa-sort-up', d => d.ascending)
-            .classed('fa-sort-down', d => !d.ascending);
-            // ++++++++  END CUT  +++++++++++
     }
 
-    addGridlines1(containerSelect, ticks) {
+    addGridlines(containerSelect, ticks) {
         ////////////
         // PART 3 // 
         ////////////
         /**
          * add gridlines to the vizualization
          */
-
-        // ++++++++ BEGIN CUT +++++++++++
-        containerSelect.selectAll('line')
-            .data(ticks)
-            .join('line')
-            .attr('x1', d => this.scaleX1(d))
-            .attr('x2', d => this.scaleX1(d))
-            .attr('y1', 0)
-            .attr('y2', this.vizHeight) // this is technically out of bounds in the smaller svg, but it doesn't show and makes the code simpler.
-            .attr('stroke', d => d === 0 ? 'black' : '#cccccc');
-        // ++++++++  END CUT  +++++++++++
+        for (let i=0; i<ticks.length; i++){
+            let position = this.scaleX(ticks[i])
+            if (i === 3){
+                containerSelect
+                    .append('line') // middle line
+                    .attr('x1', 150)
+                    .attr('y1', 0)
+                    .attr('x2', 150)
+                    .attr('y2', this.vizHeight)
+                    .style('stroke-width', 2)
+                    .style('stroke', 'black')
+                    .style('fill', 'none');
+            }
+            else {
+                containerSelect
+                    .append('line')  // actual gridlines
+                    .attr('x1', position)
+                    .attr('y1', 0)
+                    .attr('x2', position)
+                    .attr('y2', this.vizHeight)
+                    .style('stroke-width', 2)
+                    .style('stroke', 'lightgrey')
+                    .style('fill', 'none');
+            }
+        };
     }
 
-    addGridlines2(containerSelect, ticks) {
-        ////////////
-        // PART 3 // 
-        ////////////
-        /**
-         * add gridlines to the vizualization
-         */
-
-        // ++++++++ BEGIN CUT +++++++++++
-        containerSelect.selectAll('line')
-            .data(ticks)
-            .join('line')
-            .attr('x1', d => this.scaleX2(d))
-            .attr('x2', d => this.scaleX2(d))
-            .attr('y1', 0)
-            .attr('y2', this.vizHeight) // this is technically out of bounds in the smaller svg, but it doesn't show and makes the code simpler.
-            .attr('stroke', d => d === 0 ? 'black' : '#cccccc');
-        // ++++++++  END CUT  +++++++++++
-    }
-
-    addRectangles2(containerSelect) {
+    addRectangles(containerSelect) {
         ////////////
         // PART 4 // 
         ////////////
         /**
          * add rectangles for the bar charts
          */
-
-        // ++++++++ BEGIN CUT +++++++++++
-        const heightPercent = 2/3;
-        const padPercent = (1 - heightPercent) / 2
-
-        containerSelect.filter(d => d.isForecast).selectAll('rect')
-            .data(d => {
-                let val = d.phrase;
-                if (Math.sign(val.marginLow) === Math.sign(val.marginHigh))
-                {
-                    return [[val.marginLow, val.marginHigh]];
-                }
-                return [[val.marginLow, 0], [0, val.marginHigh]]
+        let that = this;
+        let individualContainers = containerSelect 
+            .append('rect')
+            .attr('x', function(d){
+                let x1 = that.scaleX(d.value.marginLow);
+                return x1;
             })
-            .join('rect')
-            .attr('x', d => this.scaleX2(d[0]))
-            .attr('y', this.vizHeight * padPercent)
-            .attr('width', d => this.scaleX2(d[1]) - this.scaleX2(d[0]))
-            .attr('height', this.vizHeight * heightPercent)
-            .classed('biden', d => d[0] < 0)
-            .classed('trump', d => d[1] > 0)
-            .classed('margin-bar', true);
+            .attr('y', 0)
+            .attr('width', function(d){
+                let x1 = that.scaleX(d.value.marginLow);
+                let x2 = that.scaleX(d.value.marginHigh);
+                if (x1 <= 150 && x2 >= 150){ return 0; }
+                else { return x2 - x1; }
+            })
+            .attr('height', 20)
+            .attr('class', function(d) {
+                if (that.scaleX(d.value.marginLow) >= 150) { return 'trump'; }
+                else if (that.scaleX(d.value.marginLow) <= 150) { return 'biden'; }
+            })
+            .style('opacity', 0.5);
 
-        containerSelect.filter(d => !d.isForecast).selectAll('rect').remove();
-        // ++++++++  END CUT  +++++++++++
+        let bidenContainers = containerSelect 
+            .append('rect')
+            .attr('x', function(d){
+                let x1 = that.scaleX(d.value.marginLow);
+                let x2 = that.scaleX(d.value.marginHigh);
+                if (x1 <= 150 && x2 >= 150){ return x1; }
+                else { return 0; }
+            })
+            .attr('y', 0)
+            .attr('width', function(d){
+                let x1 = that.scaleX(d.value.marginLow);
+                let x2 = that.scaleX(d.value.marginHigh);
+                if (x1 <= 150 && x2 >= 150){ return 150-x1; }
+                else {return 0; }
+            })
+            .attr('height', 20)
+            .attr('class', 'biden')
+            .style('opacity', 0.5);
+
+        let trumpContainers = containerSelect 
+            .append('rect')
+            .attr('x', 150)
+            .attr('y', 0)
+            .attr('width', function(d){
+                let x1 = that.scaleX(d.value.marginLow);
+                let x2 = that.scaleX(d.value.marginHigh);
+                if (x1 <= 150 && x2 >= 150){ return x2 -150; }
+                else {return 0; }
+            })
+            .attr('height', 20)
+            .attr('class', 'trump')
+            .style('opacity', 0.5);
     }
 
-    addRectangles1(containerSelect) {
+    addCircles(containerSelect) {
         ////////////
         // PART 5 // 
         ////////////
         /**
          * add circles to the vizualizations
          */
-
-        // ++++++++ BEGIN CUT +++++++++++
-        containerSelect.selectAll('circle')
-            .data(d => [d])
-            .join('circle')
-            .attr('cx', d => this.scaleX2(d.value.margin))
-            .attr('cy', d => d.isForecast ? this.vizHeight / 2 : this.smallVizHeight / 2)
-            .attr( 'r', d => d.isForecast ? this.vizHeight / 6 : this.vizHeight / 9 )
-            .classed('trump', d => d.value.margin > 0)
-            .classed('biden', d => d.value.margin <= 0)
-            .classed('margin-circle', true);
-        // ++++++++  END CUT  +++++++++++
+        let that = this;
+        containerSelect
+            .append('circle')
+            .attr('cx', function(d){ return (that.scaleX(d.value.margin)); })
+            .attr('cy', 10)
+            .attr('r', 5)
+            .attr('class', function(d){
+                let change = that.scaleX(d.value.margin);
+                if (change < 150){return 'biden';}
+                else {return 'trump';}
+            })
+            .style('stroke', 'black')
+            .style('stroke-width', 0.5);      
     }
 
     attachSortHandlers() 
@@ -305,106 +384,39 @@ class Table {
          * Attach click handlers to all the th elements inside the columnHeaders row.
          * The handler should sort based on that column and alternate between ascending/descending.
          */
-
-        // ++++++++ BEGIN CUT +++++++++++
-        d3.select('#columnHeaders')
+        let that = this;
+        let selection = d3.select('#columnHeaders')
             .selectAll('th')
-            .data(this.headerData)
-            .on('click', (event, d) => 
-            {
-                this.collapseAll(); // Comment this line out for extra credit 2
-                const sortAscending = d.sorted ? !d.ascending : true; // sort ascending by default, otherwise flip it.
-                this.sortData(d.key, sortAscending, d.alterFunc);
-                // reset state
-                for (let header of this.headerData)
-                {
-                    header.sorted = false;
+            .on('click', function(d){
+                onClick(d);
+                //console.log(that.tableData[0]['state'])
+            })
+
+        // KeyMap is not yet defined
+        //this.KeyMap [{'wins' : this.winOddsValue }];
+        
+        function onClick(d){
+            let key = d.path[0].innerText;
+            key = that.KeyMap[key]
+            let ascending = false;
+            that.headerData.map(function(d){
+                if (d.key === key){
+                    d.sorted = true;
+                    d.ascending=!d.ascending;
+                    ascending=d.ascending;
                 }
-                // set new state for this node
-                d.sorted = true;
-                d.ascending = sortAscending;
-                this.drawTable();
+                else {d.sorted = false};
+                    // else { return d3.descending(a.headerData.key['state'], b.headerData.key['state']); }
             });
-            // ++++++++  END CUT  +++++++++++
+            that.tableData.sort(function(a, b){
+                if (ascending){ return d3.ascending(a[key], b[key]); }
+                else { return d3.descending(a[key], b[key]); }
+            });
+
+        }        
     }
 
-    // ++++++++ BEGIN CUT +++++++++++
-    sortData(key, ascend, alterFunc)
-    {
-        // let tempLookup = d3.group(this.tableData.filter(d => d.isForecast), d => d.state); // for extra credit only
-        this.tableData.sort((a, b) =>
-            {
-                let sortKey = key;
-                // ---- Extra Credit 2 Logic ----
-                // To Run:
-                // * comment out call to this.collapseAll()
-                // * uncomment the line that defines tempLookup in the first funciton of sortData
-                // 
-                // if (a.isForecast !== b.isForecast)
-                // {
-                //     // in the case you compare a forecast with a poll
-                //     if (a.state === b.state)
-                //     {
-                //         // if the poll belongs to the forecast, always sort the poll below the forecast
-                //         if (a.isForecast)
-                //         {
-                //             return -1;
-                //         }
-                //         return 1;
-                //     }
-                //     // otherwise sort based on parent grouper
-                //     if (!a.isForecast)
-                //     {
-                //         a = tempLookup.get(a.state)[0];
-                //     }
-                //     else
-                //     {
-                //         b = tempLookup.get(b.state)[0];
-                //     }
-                // }
-                // else if (!a.isForecast && !b.isForecast)
-                // {
-                //     // in the case you have two polls
-                //     if (a.state !== b.state)
-                //     {
-                //         // actually compare based on parent groupers
-                //         a = tempLookup.get(a.state)[0];
-                //         b = tempLookup.get(b.state)[0];
-                //     }
-                //     else if (key === 'state')
-                //     {
-                //         // in the case where you are comparing two polls for the same state
-                //         // and sorting based on the state key, you need to reference a different
-                //         // attribute
-                //         sortKey = 'name';
-                //     }
-                // }
-                // ---- end extra credit logic ----
-                let x = a[sortKey];
-                let y = b[sortKey];
-
-                if (!ascend)
-                {
-                    [x, y] = [y, x] // swap variables
-                }
-                if (alterFunc)
-                {
-                    x = alterFunc(x);
-                    y = alterFunc(y);
-                }
-                if (x < y)
-                {
-                    return -1
-                }
-                else if (x > y)
-                {
-                    return 1
-                }
-                return 0;
-            }
-        );
-    }
-    // ++++++++  END CUT  +++++++++++
+  
 
 
     toggleRow(rowData, index) {
@@ -414,24 +426,14 @@ class Table {
         /**
          * Update table data with the poll data and redraw the table.
          */
-        // ++++++++  BEGIN CUT  +++++++++++
-        if (rowData.isExpanded)
-        {
-            // collapse - remove rows
-            this.tableData = this.tableData.filter(d => d.isForecast || rowData.state !== d.state);
-        }
-        else
-        {
-            // expand - add rows
-            let addList = this.pollData.get(rowData.state);
-            if (addList)
-            {
-                this.tableData.splice(index + 1, 0, ...addList);
-            }
-        }
-        rowData.isExpanded = !rowData.isExpanded;
-        this.drawTable();
-        // ++++++++  END CUT  +++++++++++
+
+        // not completed
+        let that = this;
+        // rowData.sort(function(a, b){
+        //     if (that.tableData.parents === pollData.entries){
+        //         return console.log(rowData);
+        //     }
+        // });     
     }
 
     collapseAll() {

@@ -5,13 +5,15 @@ class Chart {
         this.height = 500;
         this.width = 900;
         this.margin = ({top: 0, right: 20, bottom: 20, left: 20});
-        this.chartState = {};
+        this.chartState = false;
+        this.button = d3.select("#clear-button")
 
         // Use d3 group to get the line data in groups
         const groupedData = d3.group(this.data, (d) => d.category);
+        console.log(groupedData);
 
         // Create a color scale
-        this.categories = groupedData.keys();
+        // this.categories = groupedData.keys();
         //this.colorScale = d3.scaleOrdinal(d3.schemeTableau10).domain([...categories]);
 
         this.svg = d3.select("#chart")
@@ -27,6 +29,10 @@ class Chart {
         this.tooltip = d3.select("#chart").append("div")
             .attr("class", "tooltip")
             .style("opacity", 0);
+
+        this.colors = d3.scaleOrdinal()
+            .domain(this.data.map( (d,i) => d.category[i] ))
+            .range(['#FF7F50', '#DE3163', '#9FE2BF', '#40E0D0', '#6495ED', '#CCCCFF']);
 
         // Append x axis text
         // this.svg.select('#x-axis')
@@ -50,10 +56,28 @@ class Chart {
         //     .domain(this.groupedData.map(d => d.category))
         //     .range(['#D81B60','#1976D2','#388E3C','#FBC02D','#E64A19','#455A64']);
 
-
         this.drawLegend();
-        //this.colorScale();
         this.circles();
+
+        this.button 
+            // .selectAll('th')
+            // .data(this.headerData)
+            .on('click', (event, d) => 
+            {
+                if (this.chartState === false) {
+                    this.updateCircles();
+                    console.log(this.chartState);
+                    // this.chartState = True;
+                }
+                else if (this.chartState === true){
+                    this.circles();
+                    console.log(this.chartState);
+                    // this.chartState = False;
+                }
+            });
+
+        //this.colorScale();
+       
         //this.updateCircles();
     }
 
@@ -88,8 +112,6 @@ class Chart {
             .attr('y', this.margin.bottom*2)
             .text(d => `${Math.abs(d)}`)
             .attr('text-anchor', 'middle');
-            //.classed('label', true)
-            //.orient('top');
 
         svgSelect
             .append('text')
@@ -118,57 +140,76 @@ class Chart {
 
     updateCircles(){
 
-        // const grouped = this.data.group(data, (d) => d.category)
-
-        // let colors = d3.scaleOrdinal()
-        //     // .domain(["asia", "africa", "northAmerica", "europe", "southAmerica", "oceania"])
-        //     .domain(this.grouped.map(d => d.category))
-        //     .range(['#D81B60','#1976D2','#388E3C','#FBC02D','#E64A19','#455A64']);
-
-        let svgSelect = d3.selectAll("#bubbles")
+        this.chartState = true;
+        let circles = this.svg
+            .select('#bubbles')
             .attr("width", this.width )
-            //.attr("height", 10000)
-            .attr("transform", `translate(0, 120)`);
+            .attr("transform", `translate(0, 120)`)
+            .selectAll('.circle')
+            .data(this.data, (d) => d.position)
 
-        let circles = svgSelect
-            .selectAll("circle")
-            .data(this.data, (d) => d.position);
+        circles
+            .exit()
+            .transition()
+            .delay(2000)
+            //.duration(1000)
+            .attr("cx", 0)
+            .attr("cy", (this.height / 2) - this.margin.bottom / 2)
+            .remove();
+
+        circles
+            .enter()
+            .join('circle')
+            //.enter()
+            .attr('fill', (d, i) => this.colors(d.category))
+            // .attr('fill', "red")
+            .attr('stroke', 'black')
+            .attr('stroke-width', 0.1)
+            .attr("cx", (d)=> d.moveX)
+            .attr("cy", (d)=> d.moveY)
+            .attr("r", (d)=> d.total*0.3)
+            .attr('stroke-width', 1)
+            .selectAll('text')
+            .data(this.groupedData, (d) => d.category)
+            .join('text')
+            .attr('x', 0)
+            .attr('y', this.margin.bottom*2)
+            .text(d => `text`)
+            .attr('text-anchor', 'middle');
+
+        // let svgSelect = d3.selectAll("#bubbles")
+        //     //.attr("width", this.width )
+        //     //.attr("height", 10000)
+        //     //.attr("transform", `translate(0, 120)`);
+
+        // let circles = svgSelect
+        //     .selectAll("circle")
+        //     .data(this.data, (d) => d.position);
 
         // circles.exit()
         //     .transition()
         //     .duration(1000)
         //     .attr("cx", 0)
-        //     .attr("cy", (height / 2) - margin.bottom / 2)
+        //     .attr("cy", (this.height / 2) - this.margin.bottom / 2)
         //     .remove();
 
-        circles
-            .enter()
-            .append("circle")
-            .attr("class", "position")
-            .attr("cx", 0)
-            .attr("cy", ((this.height - this.margin.bottom) / 2) - this.margin.bottom / 2)
-            .attr("r", (d)=> d.total*0.3)
-            //.attr("fill", function(d){ return this.colors(d.category)})
-            //.merge(circles)
-            // .transition()
-            // .duration(2000)
-            .attr("cx", function(d) { return d.x; })
-            .attr("cy", function(d) { return d.y; });
+        // circles
+        //     .enter()
+        //     .append("circle")
+        //     .attr("class", "position")
+        //     .attr("cx", 0)
+        //     .attr("cy", ((this.height - this.margin.bottom) / 2) - this.margin.bottom / 2)
+        //     .attr("r", (d)=> d.total*0.3)
+        //     .attr('fill', (d, i) => colors(d.category))
+        //     //.merge(circles)
+        //     // .transition()
+        //     // .duration(2000)
+        //     .attr("cx", function(d) { return d.sourceX; })
+        //     .attr("cy", function(d) { return d.sourceY; });
     }
 
     circles(){
-        // let svgSelect = d3.selectAll("#bubbles")
-        //     .attr("width", this.width )
-        //     //.attr("height", 10000)
-        //     .attr("transform", `translate(0, 120)`);
-
-        let colors = d3.scaleOrdinal()
-            // .domain(["asia", "africa", "northAmerica", "europe", "southAmerica", "oceania"])
-            // // .domain(this.groupedData.map(d => d.category))
-            .domain(this.data.map( (d,i) => d.category[i] ))
-            .range(['#FF7F50', '#DE3163', '#9FE2BF', '#40E0D0', '#6495ED', '#CCCCFF']);
-
-
+        this.chartState = false;
         this.svg
             .select('#bubbles')
             .attr("width", this.width )
@@ -176,20 +217,13 @@ class Chart {
             .selectAll('.circle')
             .data(this.data, (d) => d.position)
             .join('circle')
-            .attr('fill', (d, i) => colors(d.category))
+            .attr('fill', (d, i) => this.colors(d.category))
             // .attr('fill', "red")
             .attr('stroke', 'black')
             .attr('stroke-width', 0.1)
             .attr("cx", (d)=> d.sourceX)
             .attr("cy", (d)=> d.sourceY)
             .attr("r", (d)=> d.total*0.3)
-            //.attr('stroke', ([continent, values]) => this.colorScale(values[0].iso_code))
             .attr('stroke-width', 1);
-            // .attr('d', ([continent, values]) => {
-            //     return d3.line()
-            //     .x((d) => this.xAxis(new Date(d.date)) + this.yAxisPadding)
-            //     .y((d) => this.yAxis(d.total_cases_per_million))
-            //     (values);
-            // });
     }    
 }

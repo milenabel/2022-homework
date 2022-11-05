@@ -70,7 +70,7 @@ class Chart {
 
         this.colors = d3.scaleOrdinal()
             .domain(this.data.map( (d,i) => d.category[i] ))
-            .range(['#FF7F50', '#DE3163', '#9FE2BF', '#40E0D0', '#6495ED', '#CCCCFF']);
+            .range(['#ff50b3', '#a2ff50', '#9FE2BF', '#FF7F50', '#6495ED', '#CCCCFF']);
 
         // this.colors = d3.scaleOrdinal()
         //     // .domain(["asia", "africa", "northAmerica", "europe", "southAmerica", "oceania"])
@@ -153,12 +153,6 @@ class Chart {
                 .style('stroke-width', 2)
                 .style('stroke', 'darkgrey')
                 .style('fill', 'none');
-
-        // svgSelect
-        //     .append('text')
-        //     .text('Republican Leaning')
-        //     .attr('x', 770)
-        //     .attr('y', this.margin.top);
         }
         else if (this.chartState === false){
             this.svg
@@ -253,11 +247,9 @@ class Chart {
             .append('g')
             .attr('id', 'circlesIn')
             .selectAll('circle')
-            // .data(this.data, (d) => d.position)
             .data(this.data)
             .join('circle')
             .attr('fill', (d, i) => this.colors(d.category))
-            // .attr('fill', "red")
             .attr('stroke', 'black')
             .attr('stroke-width', 0.1)
             .attr("cx", (d)=> d.sourceX)

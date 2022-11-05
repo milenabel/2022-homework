@@ -9,7 +9,7 @@ class Table {
         this.filteredData = this.data.filter(d => [d.phrase, d.percent_of_d_speeches, d.percent_of_r_speeches, d.total]);
         this.colors = d3.scaleOrdinal()
             .domain(this.data.map( (d,i) => d.category[i] ))
-            .range(['#FF7F50', '#DE3163', '#9FE2BF', '#40E0D0', '#6495ED', '#CCCCFF']);
+            .range(['#ff50b3', '#a2ff50', '#9FE2BF', '#FF7F50', '#6495ED', '#CCCCFF']);
         // add useful attributes
         // for (let forecast of this.tableData)
         // {
@@ -101,7 +101,6 @@ class Table {
             .attr('y', this.vizHeight - pad)
             .text(d => `${Math.abs(d)}`)
             .attr('text-anchor', 'middle')
-            .attr('class', d => d < 0 ? 'biden' : 'trump')
             .classed('label', true);
 
         d3.select('#marginaxis2')
@@ -128,9 +127,9 @@ class Table {
             .join('td')
             .attr('class', d => d.phrase);
 
-        let vizSelection = selection.filter(d => d.type === 'viz');
+        //let vizSelection = selection.filter(d => d.type === 'viz');
 
-        let svgSelect = vizSelection.selectAll('svg')
+        let svgSelect = selection.selectAll('svg')
             .data(d => [d])
             .join('svg')
             .attr('width', this.vizWidth)
@@ -145,58 +144,6 @@ class Table {
         this.addPercent(grouperSelect.filter((d,i) => i === 2));
         this.addTotal(grouperSelect.filter((d,i) => i === 3));
     }
-
-    // rowToCellDataTransform(d) {
-    //     let phraseInfo = {
-    //         type: 'text',
-    //         class: d.phrase,
-    //         value: d.phrase
-    //         // type: 'text',
-    //         // class: d.isForecast ? 'state-name' : 'poll-name',
-    //         // value: d.isForecast ? d.state : d.name
-    //     };
-
-    //     let frequencyInfo = {
-    //         type: 'viz',
-    //         value: {
-    //             marginLow: 0,
-    //             // margin: d.isForecast ? -(+d.total/50) : d.margin,
-    //             //margin: -(+d.total/50),
-    //             marginHigh: d.total/50,
-    //         }
-    //         // value: {
-    //         //     marginLow: 0,
-    //         //     // margin: d.isForecast ? -(+d.total/50) : d.margin,
-    //         //     margin: -(+d.total/50),
-    //         //     marginHigh: d.total/50,
-    //         // }
-    //     };
-
-    //     let percentageInfo = {
-    //         type: 'viz',
-    //         value: {
-    //             //d.percent_of_d_speeches, d.percent_of_r_speeches
-    //             // marginLow: -d.percent_of_d_speeches,
-    //             // // margin: d.isForecast ? -(+d.mean_netpartymargin) : d.margin,
-    //             // margin: -(+d.percent_of_r_speeches),
-    //             // marginHigh: -d.percent_of_r_speeches,
-    //         }
-    //     };
-
-    //     let totalInfo =
-    //     {
-    //         type: 'text',
-    //         class: d.total,
-    //         value: d.total
-    //     }
-
-    //     return [phraseInfo, frequencyInfo, percentageInfo, totalInfo];
-    //     // for (let point of dataList)
-    //     // {
-    //     //     point.isForecast = d.isForecast;
-    //     // }
-    //     // return dataList;
-    // }
 
     updateHeaders() {
         /**
@@ -217,7 +164,8 @@ class Table {
 
     addPhrase(containerSelect){
         containerSelect.selectAll('td')
-            .data(this.data, d=>d.phrase)
+            // .data(this.data, d=>d.phrase)
+            .data(d => d.phrase)
             .enter()
             .append('td');
     }
@@ -261,7 +209,8 @@ class Table {
 
     addTotal(containerSelect){
         containerSelect.selectAll('td')
-            .data(this.data, d=>d.total)
+            // .data(this.data, d => d.total)
+            .data(d => d.total)
             .enter()
             .append('td');
         

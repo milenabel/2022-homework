@@ -42,6 +42,16 @@
     height: 1200px;
 }
 
+/* .tooltip {
+    background-color: black;
+    border: none;
+    border-radius: 5px;
+    padding: 15px;
+    min-width: 400px;
+    text-align: left;
+    color: white;
+  } */
+
 .tooltip {
     position: absolute;
     text-align: left;

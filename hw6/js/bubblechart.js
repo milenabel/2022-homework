@@ -12,6 +12,48 @@ class Chart {
         const groupedData = d3.group(this.data, (d) => d.category);
         console.log(groupedData);
 
+        this.tooltip = d3.select("#bubbles").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+    //     // create a tooltip
+    //     this.tooltip = d3.select("#chart")
+    //         .append("div") 
+    //         .style("opacity", 0)
+    //         .attr("class", "tooltip")
+    //         .style("font-size", "16px")
+
+    //    // Three function that change the tooltip when user hover / move / leave a cell
+    //     this.mouseover = function(d) {
+    //         // this.tooltip
+    //         //     .transition()
+    //         //     .duration(200)
+    //         //     .style("opacity", 1)
+    //         this.tooltip
+    //             .html("<span style='color:grey'> </span>" + d.category ) // + d.Prior_disorder + "<br>" + "HR: " +  d.HR)
+    //             .html( (d) => {
+    //                 if (d.moveX > 0){
+    //                     return ("<span style='color:grey'> D+ </span>" + d.percent_of_d_speeches)
+    //                 } 
+    //                 else if (d.moveX < 0){
+    //                     return ("<span style='color:grey'> R+ </span>" + d.percent_of_r_speeches ) 
+    //             } }) 
+    //             .html("<span style='color:grey'> In </span>" + d.total/50 + "<span style='color:grey'>% speeches </span>") 
+    //             .style("left", (d3.mouse(this)[0]+30) + "px")
+    //             .style("top", (d3.mouse(this)[1]+30) + "px")
+    //     }
+    //     this.mousemove = function(d) {
+    //         this.tooltip
+    //             .style("left", (d3.mouse(this)[0]+30) + "px")
+    //             .style("top", (d3.mouse(this)[1]+30) + "px")
+    //     }
+    //     this.mouseleave = function(d) {
+    //         this.tooltip
+    //             .transition()
+    //             .duration(200)
+    //             .style("opacity", 0)
+    //     }
+
         this.svg = d3.select("#chart")
             .attr("width", this.width);
             //.attr("height", this.height);
@@ -37,6 +79,7 @@ class Chart {
 
         this.drawLegend();
         this.circles();
+        this.tooltips();
 
         this.button 
             .on('click', (event, d) => 
@@ -98,33 +141,71 @@ class Chart {
 
         if (this.chartState === true) {
             this.svg
-            .select('#bubbles')
-            .selectAll('line')
-            .join('line')
-            .transition()
-            .duration(3600)
-            .attr('x1', ((this.width - this.margin.left)/2))
-            .attr('y1',-60)
-            .attr('x2', ((this.width - this.margin.left)/2))
-            .attr('y2', 70)
-            .style('stroke-width', 2)
-            .style('stroke', 'darkgrey')
-            .style('fill', 'none');
+                .select('#bubbles')
+                .selectAll('line')
+                .join('line')
+                .transition()
+                .duration(3600)
+                .attr('x1', ((this.width - this.margin.left)/2))
+                .attr('y1',-60)
+                .attr('x2', ((this.width - this.margin.left)/2))
+                .attr('y2', 70)
+                .style('stroke-width', 2)
+                .style('stroke', 'darkgrey')
+                .style('fill', 'none');
+
+        // svgSelect
+        //     .append('text')
+        //     .text('Republican Leaning')
+        //     .attr('x', 770)
+        //     .attr('y', this.margin.top);
         }
         else if (this.chartState === false){
             this.svg
-            .select('#bubbles')
-            .selectAll('line')
-            .join('line')
-            .transition()
-            .duration(3600)
-            .attr('x1', ((this.width - this.margin.left)/2))
-            .attr('y1',-60)
-            .attr('x2', ((this.width - this.margin.left)/2))
-            .attr('y2', this.height + 180)
-            .style('stroke-width', 2)
-            .style('stroke', 'darkgrey')
-            .style('fill', 'none');
+                .select('#bubbles')
+                .selectAll('line')
+                .join('line')
+                .transition()
+                .duration(3600)
+                .attr('x1', ((this.width - this.margin.left)/2))
+                .attr('y1',-60)
+                .attr('x2', ((this.width - this.margin.left)/2))
+                .attr('y2', this.height + 180)
+                .style('stroke-width', 2)
+                .style('stroke', 'darkgrey')
+                .style('fill', 'none');
+
+            // this.svg
+            //     .select('#bubbles')
+            //     .selectAll('text')
+            //     .join('text')
+            //     .transition()
+            //     .duration(3600)
+            //     //.append('text')
+            //     // .text(this.data, (d, i) => {
+            //     //     if d.category[i] === 'crime/justice' {
+            //     //         return 'Crime/Justice';
+            //     //     }
+            //     //     else if d.category[i] === 'economy/fiscal issues' {
+            //     //         return 'Economy/Fiscal issues';
+            //     //     }
+            //     //     else if d.category[i] === 'education' {
+            //     //         return 'Education';
+            //     //     }
+            //     //     else if d.category[i] === 'energy/environment' {
+            //     //         return 'Energy/Environment';
+            //     //     }
+            //     //     else if d.category[i] === 'health care' {
+            //     //         return 'Health Care';
+            //     //     }
+            //     //     else if d.category[i] === 'Mental Health/Substance Abuse' {
+            //     //         return 'Mental Health/Substance Abuse';
+            //     //     }
+            //     // })
+            //     .text(this.data, (d, i) => d.category[i])
+            //     .attr('x', this.margin.left)
+            //     .attr('y', 50);
+                // .attr('y', (d, i) => d.moveY[i]);
         }
 
         this.svg
@@ -162,6 +243,11 @@ class Chart {
             .style('fill', 'none');
         this.svg
             .select('#bubbles')
+            .append('g')
+            .attr('id', 'textIn')
+            .append('text');
+        this.svg
+            .select('#bubbles')
             .attr("width", this.width )
             .attr("transform", `translate(0, 120)`)
             .append('g')
@@ -178,6 +264,24 @@ class Chart {
             .attr("cy", (d)=> d.sourceY)
             .attr("r", (d)=> d.total*0.25)
             .attr('stroke-width', 1);
+            // .on("mousemove", function(d) {
+            // .on("mouseover", function(d) {
+
+            //     this.tooltip.html(`<strong>${d.category}</strong><br>
+            //                  <strong> In ${d.total/50}% speeches </strong>`)
+            //                 //   ${chartState.legend.slice(0, chartState.legend.indexOf(","))}: 
+            //                 //   <strong>${d3.format(",")(d[chartState.measure])}</strong>
+            //                 //   ${chartState.legend.slice(chartState.legend.lastIndexOf(" "))}
+            //         // .style('top', '5px')
+            //         // .style('left', '5px')
+            //         .style('position', 'absolute')
+            //         .style("opacity", 0.9);
+            // }).on("mouseout", function(_) {
+            //     this.tooltip.style("opacity", 0);
+            // });
+            // .on("mouseover", this.mouseover)
+            // .on("mousemove", this.mousemove)
+            // .on("mouseleave", this.mouseleave);
             // .on("mouseover", (d) => {		
             //     div.selectAll('.circle')
             //         .transition()		
@@ -196,24 +300,18 @@ class Chart {
 
     tooltips(){
         // Show tooltip when hovering over circle (data for respective country)
-        d3.selectAll(".countries").on("mousemove", function(d) {
-            tooltip.html(`Country: <strong>${d.country}</strong><br>
-                          ${chartState.legend.slice(0, chartState.legend.indexOf(","))}: 
-                          <strong>${d3.format(",")(d[chartState.measure])}</strong>
-                          ${chartState.legend.slice(chartState.legend.lastIndexOf(" "))}`)
-                .style('top', d3.event.pageY - 12 + 'px')
-                .style('left', d3.event.pageX + 25 + 'px')
+        d3.selectAll(".circle").on("mousemove", function(d) {
+            this.tooltip.html(`<strong>${d.category}</strong><br>
+                         <strong> In ${d.total/50}% speeches </strong>`)
+                        //   ${chartState.legend.slice(0, chartState.legend.indexOf(","))}: 
+                        //   <strong>${d3.format(",")(d[chartState.measure])}</strong>
+                        //   ${chartState.legend.slice(chartState.legend.lastIndexOf(" "))}
+                // .style('top', '5px')
+                // .style('left', '5px')
+                .style('position', 'absolute')
                 .style("opacity", 0.9);
-
-            xLine.attr("x1", d3.select(this).attr("cx"))
-                .attr("y1", d3.select(this).attr("cy"))
-                .attr("y2", (height - margin.bottom))
-                .attr("x2",  d3.select(this).attr("cx"))
-                .attr("opacity", 1);
-
         }).on("mouseout", function(_) {
-            tooltip.style("opacity", 0);
-            xLine.attr("opacity", 0);
+            this.tooltip.style("opacity", 0);
         });
     }
 }

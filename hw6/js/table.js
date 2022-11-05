@@ -6,6 +6,10 @@ class Table {
     constructor(data) {
         this.data = data;
         this.tableData = [...data];
+        this.filteredData = this.data.filter(d => [d.phrase, d.percent_of_d_speeches, d.percent_of_r_speeches, d.total]);
+        this.colors = d3.scaleOrdinal()
+            .domain(this.data.map( (d,i) => d.category[i] ))
+            .range(['#FF7F50', '#DE3163', '#9FE2BF', '#40E0D0', '#6495ED', '#CCCCFF']);
         // add useful attributes
         // for (let forecast of this.tableData)
         // {
@@ -72,7 +76,6 @@ class Table {
             .attr('x', d => this.scaleX1(d))
             .attr('y', this.vizHeight - pad)
             .text(d => `${Math.abs(d)}`)
-            //.attr('class', d => d < 0 ? 'biden' : 'trump')
             .attr('text-anchor', 'middle')
             .classed('label', true);
 
@@ -98,7 +101,7 @@ class Table {
             .attr('y', this.vizHeight - pad)
             .text(d => `${Math.abs(d)}`)
             .attr('text-anchor', 'middle')
-            //.attr('class', d => d < 0 ? 'biden' : 'trump')
+            .attr('class', d => d < 0 ? 'biden' : 'trump')
             .classed('label', true);
 
         d3.select('#marginaxis2')
@@ -117,28 +120,13 @@ class Table {
         this.updateHeaders();
         let rowSelection = d3.select('#predictionTableBody')
             .selectAll('tr')
-            .data(this.tableData)
+            .data(this.data)
             .join('tr');
-
-        rowSelection.on('click', (event, d) => 
-            {
-                // if (d.isForecast)
-                // {
-                    // this.toggleRow(d, this.tableData.indexOf(d));
-                // }
-            });
 
         let selection = rowSelection.selectAll('td')
             .data(this.rowToCellDataTransform)
             .join('td')
             .attr('class', d => d.phrase);
-
-
-
-        // ++++++++ BEGIN CUT +++++++++++
-        // selection.filter(d => d.type === 'text').text(d => d.phrase);
-        // console.log(selection);
-        // ++++++++  END CUT  +++++++++++
 
         let vizSelection = selection.filter(d => d.type === 'viz');
 
@@ -146,62 +134,69 @@ class Table {
             .data(d => [d])
             .join('svg')
             .attr('width', this.vizWidth)
-            // .attr('height', d => d.isForecast ? this.vizHeight : this.smallVizHeight);
             .attr('height', this.vizHeight);
-
 
         let grouperSelect = svgSelect.selectAll('g')
             .data(d => [d, d, d, d])
             .join('g');
 
-        this.addRectangles1(grouperSelect.filter((d,i) => i === 1));
-        this.addRectangles2(grouperSelect.filter((d,i) => i === 1));
+        this.addPhrase(grouperSelect.filter((d,i) => i === 0));
+        this.addFreq(grouperSelect.filter((d,i) => i === 1));
+        this.addPercent(grouperSelect.filter((d,i) => i === 2));
+        this.addTotal(grouperSelect.filter((d,i) => i === 3));
     }
 
-    rowToCellDataTransform(d) {
-        let phraseInfo = {
-            type: 'text',
-            class: d.phrase,
-            value: d.phrase
-            // type: 'text',
-            // class: d.isForecast ? 'state-name' : 'poll-name',
-            // value: d.isForecast ? d.state : d.name
-        };
+    // rowToCellDataTransform(d) {
+    //     let phraseInfo = {
+    //         type: 'text',
+    //         class: d.phrase,
+    //         value: d.phrase
+    //         // type: 'text',
+    //         // class: d.isForecast ? 'state-name' : 'poll-name',
+    //         // value: d.isForecast ? d.state : d.name
+    //     };
 
-        let frequencyInfo = {
-            type: 'viz',
-            value: {
-                marginLow: 0,
-                // margin: d.isForecast ? -(+d.total/50) : d.margin,
-                margin: -(+d.total/50),
-                marginHigh: d.total/50,
-            }
-        };
+    //     let frequencyInfo = {
+    //         type: 'viz',
+    //         value: {
+    //             marginLow: 0,
+    //             // margin: d.isForecast ? -(+d.total/50) : d.margin,
+    //             //margin: -(+d.total/50),
+    //             marginHigh: d.total/50,
+    //         }
+    //         // value: {
+    //         //     marginLow: 0,
+    //         //     // margin: d.isForecast ? -(+d.total/50) : d.margin,
+    //         //     margin: -(+d.total/50),
+    //         //     marginHigh: d.total/50,
+    //         // }
+    //     };
 
-        let percentageInfo = {
-            type: 'viz',
-            value: {
-                marginLow: -d.percent_of_d_speeches,
-                // margin: d.isForecast ? -(+d.mean_netpartymargin) : d.margin,
-                margin: -(+d.mean_netpartymargin),
-                marginHigh: -d.percent_of_r_speeches,
-            }
-        };
+    //     let percentageInfo = {
+    //         type: 'viz',
+    //         value: {
+    //             //d.percent_of_d_speeches, d.percent_of_r_speeches
+    //             // marginLow: -d.percent_of_d_speeches,
+    //             // // margin: d.isForecast ? -(+d.mean_netpartymargin) : d.margin,
+    //             // margin: -(+d.percent_of_r_speeches),
+    //             // marginHigh: -d.percent_of_r_speeches,
+    //         }
+    //     };
 
-        let totalInfo =
-        {
-            type: 'text',
-            class: d.total,
-            value: d.total
-        }
+    //     let totalInfo =
+    //     {
+    //         type: 'text',
+    //         class: d.total,
+    //         value: d.total
+    //     }
 
-        let dataList = [phraseInfo, frequencyInfo, percentageInfo, totalInfo];
-        // for (let point of dataList)
-        // {
-        //     point.isForecast = d.isForecast;
-        // }
-        return dataList;
-    }
+    //     return [phraseInfo, frequencyInfo, percentageInfo, totalInfo];
+    //     // for (let point of dataList)
+    //     // {
+    //     //     point.isForecast = d.isForecast;
+    //     // }
+    //     // return dataList;
+    // }
 
     updateHeaders() {
         /**
@@ -218,30 +213,39 @@ class Table {
             .classed('no-display', d => !d.sorted)
             .classed('fa-sort-up', d => d.ascending)
             .classed('fa-sort-down', d => !d.ascending);
-            // ++++++++  END CUT  +++++++++++
     }
 
-    addRectangles2(containerSelect) {
-        ////////////
-        // PART 4 // 
-        ////////////
-        /**
-         * add rectangles for the bar charts
-         */
+    addPhrase(containerSelect){
+        containerSelect.selectAll('td')
+            .data(this.data, d=>d.phrase)
+            .enter()
+            .append('td');
+    }
 
-        // ++++++++ BEGIN CUT +++++++++++
+    addFreq(containerSelect){
         const heightPercent = 2/3;
-        const padPercent = (1 - heightPercent) / 2
+        const padPercent = (1 - heightPercent) / 2;
+        containerSelect.selectAll('rect')
+        .data(d => {
+            return [0, (d.total/50)]
+        })
+        .join('rect')
+        .attr('x', d => this.scaleX1(d[0]))
+        .attr('y', this.vizHeight * padPercent)
+        .attr('width', d => this.scaleX1(d[1]) - this.scaleX1(d[0]))
+        .attr('height', this.vizHeight * heightPercent)
+        .attr('fill', (d, i) => this.colors(d.category))
+        .classed('margin-bar', true);
 
-        // containerSelect.filter(d => d.isForecast).selectAll('rect')
+        // containerSelect.selectAll('rect').remove();
+    }
+
+    addPercent(containerSelect){
+        const heightPercent = 2/3;
+        const padPercent = (1 - heightPercent) / 2;
         containerSelect.selectAll('rect')
             .data(d => {
-                let val = d.percent_of_r_speeches;
-                if (Math.sign(val.marginLow) === Math.sign(val.marginHigh))
-                {
-                    return [[val.marginLow, val.marginHigh]];
-                }
-                return [[val.marginLow, 0], [0, val.marginHigh]]
+                return [[d.percent_of_d_speeches, 0], [0, d.percent_of_r_speeches]]
             })
             .join('rect')
             .attr('x', d => this.scaleX2(d[0]))
@@ -252,32 +256,23 @@ class Table {
             .classed('trump', d => d[1] > 0)
             .classed('margin-bar', true);
 
-        // containerSelect.filter(d => !d.isForecast).selectAll('rect').remove();
-        containerSelect.selectAll('rect').remove();
-        // ++++++++  END CUT  +++++++++++
+        // containerSelect.selectAll('rect').remove();
     }
 
-    addRectangles1(containerSelect) {
-        ////////////
-        // PART 5 // 
-        ////////////
-        /**
-         * add circles to the vizualizations
-         */
-
+    addTotal(containerSelect){
+        containerSelect.selectAll('td')
+            .data(this.data, d=>d.total)
+            .enter()
+            .append('td');
+        
     }
 
     attachSortHandlers() 
     {
-        ////////////
-        // PART 6 // 
-        ////////////
         /**
          * Attach click handlers to all the th elements inside the columnHeaders row.
          * The handler should sort based on that column and alternate between ascending/descending.
          */
-
-        // ++++++++ BEGIN CUT +++++++++++
         d3.select('#columnHeaders')
             .selectAll('th')
             .data(this.headerData)
@@ -296,61 +291,13 @@ class Table {
                 d.ascending = sortAscending;
                 this.drawTable();
             });
-            // ++++++++  END CUT  +++++++++++
     }
 
-    // ++++++++ BEGIN CUT +++++++++++
     sortData(key, ascend, alterFunc)
     {
-        // let tempLookup = d3.group(this.tableData.filter(d => d.isForecast), d => d.state); // for extra credit only
-        this.tableData.sort((a, b) =>
+        this.data.sort((a, b) =>
             {
                 let sortKey = key;
-                // ---- Extra Credit 2 Logic ----
-                // To Run:
-                // * comment out call to this.collapseAll()
-                // * uncomment the line that defines tempLookup in the first funciton of sortData
-                // 
-                // if (a.isForecast !== b.isForecast)
-                // {
-                //     // in the case you compare a forecast with a poll
-                //     if (a.state === b.state)
-                //     {
-                //         // if the poll belongs to the forecast, always sort the poll below the forecast
-                //         if (a.isForecast)
-                //         {
-                //             return -1;
-                //         }
-                //         return 1;
-                //     }
-                //     // otherwise sort based on parent grouper
-                //     if (!a.isForecast)
-                //     {
-                //         a = tempLookup.get(a.state)[0];
-                //     }
-                //     else
-                //     {
-                //         b = tempLookup.get(b.state)[0];
-                //     }
-                // }
-                // else if (!a.isForecast && !b.isForecast)
-                // {
-                //     // in the case you have two polls
-                //     if (a.state !== b.state)
-                //     {
-                //         // actually compare based on parent groupers
-                //         a = tempLookup.get(a.state)[0];
-                //         b = tempLookup.get(b.state)[0];
-                //     }
-                //     else if (key === 'state')
-                //     {
-                //         // in the case where you are comparing two polls for the same state
-                //         // and sorting based on the state key, you need to reference a different
-                //         // attribute
-                //         sortKey = 'name';
-                //     }
-                // }
-                // ---- end extra credit logic ----
                 let x = a[sortKey];
                 let y = b[sortKey];
 
@@ -375,40 +322,4 @@ class Table {
             }
         );
     }
-    // ++++++++  END CUT  +++++++++++
-
-
-    // toggleRow(rowData, index) {
-    //     ////////////
-    //     // PART 8 // 
-    //     ////////////
-    //     /**
-    //      * Update table data with the poll data and redraw the table.
-    //      */
-    //     // ++++++++  BEGIN CUT  +++++++++++
-    //     if (rowData.isExpanded)
-    //     {
-    //         // collapse - remove rows
-    //         // this.tableData = this.tableData.filter(d => d.isForecast || rowData.state !== d.state);
-    //         this.tableData = this.tableData.filter(d => rowData.phrase !== d.phrase);
-    //     }
-    //     else
-    //     {
-    //         // expand - add rows
-    //         let addList = this.pollData.get(rowData.phrase);
-    //         if (addList)
-    //         {
-    //             this.tableData.splice(index + 1, 0, ...addList);
-    //         }
-    //     }
-    //     rowData.isExpanded = !rowData.isExpanded;
-    //     this.drawTable();
-    //     // ++++++++  END CUT  +++++++++++
-    // }
-
-    // collapseAll() {
-    //     // this.tableData = this.tableData.filter(d => d.isForecast)
-    //     this.tableData = this.tableData.filter(d => d.isForecast)
-    // }
-
 }

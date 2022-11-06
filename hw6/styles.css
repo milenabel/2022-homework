@@ -165,6 +165,10 @@ tbody tr:hover {
     background-color: #efefef;
 }
 
+.no-display {
+    display: none !important;
+}
+
 .label{
     text-anchor: middle;
 }

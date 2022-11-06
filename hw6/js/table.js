@@ -114,7 +114,7 @@ class Table {
     }
 
     drawTable() {
-        // this.updateHeaders();
+        this.updateHeaders();
         let rowSelection = d3.select('#predictionTableBody')
             .selectAll('tr')
             .data(this.data)    
@@ -159,7 +159,6 @@ class Table {
             class: 'freq',
             value: {
                 marginLow: 0,
-                //margin: d.isForecast ? -(+d.mean_netpartymargin) : d.margin,
                 marginHigh: d.total/50,
             }
         };
@@ -169,7 +168,6 @@ class Table {
             class: 'perc',
             value: {
                 marginLow: -d.percent_of_d_speeches,
-                //margin: d.isForecast ? -(+d.mean_netpartymargin) : d.margin,
                 marginHigh: -d.percent_of_r_speeches,
             }
         };
@@ -185,9 +183,6 @@ class Table {
     }
 
     updateHeaders() {
-        /**
-         * update the column headers based on the sort state
-         */
         const colSelect = d3.select('#columnHeaders');
 
         colSelect.selectAll('th')
@@ -200,13 +195,6 @@ class Table {
             .classed('fa-sort-up', d => d.ascending)
             .classed('fa-sort-down', d => !d.ascending);
     }
-
-    // addPhrase(containerSelect){
-    //     containerSelect
-    //         .selectAll('td')
-    //         .data(d => d.phrase)
-    //         .join();
-    // }
 
     addFreq(containerSelect){
         const heightPercent = 2/3;
@@ -228,8 +216,6 @@ class Table {
                 .attr('fill', (d, i) => this.colors(d.category))
                 .classed('margin-bar', true);
         }
-
-        // containerSelect.selectAll('rect').remove();
     }
 
     addPercentBlue(containerSelect){
@@ -240,12 +226,9 @@ class Table {
         for (const container of containerSelect) {
             i++
             d3.select(container)
-                //.select('g')
                 .selectAll('rect')
                 .data([this.data[i]])
                 .join('rect')
-                // .attr('class', 'perc')
-                // .attr('x', d => console.log(d))
                 .attr('x', d => this.scaleX2(0) - Math.abs(this.scaleX2(0) - this.scaleX2(+d.percent_of_d_speeches)))
                 .attr('y', this.vizHeight * padPercent)
                 .attr('width', d => Math.abs(this.scaleX2(0) - this.scaleX2(+d.percent_of_d_speeches)))
@@ -276,37 +259,21 @@ class Table {
                 .classed('margin-bar', true)
                 .classed('perc', true);
         }
-
-        // containerSelect.selectAll('rect').remove();
     }
-
-    // addTotal(containerSelect){
-    //     containerSelect.selectAll('td')
-    //         // .data(this.data, d => d.total)
-    //         .data(d => d.total)
-    //         .join();
-    // }
 
     attachSortHandlers() 
     {
-        /**
-         * Attach click handlers to all the th elements inside the columnHeaders row.
-         * The handler should sort based on that column and alternate between ascending/descending.
-         */
         d3.select('#columnHeaders')
             .selectAll('th')
             .data(this.headerData)
             .on('click', (event, d) => 
             {
-                //this.collapseAll(); // Comment this line out for extra credit 2
-                const sortAscending = d.sorted ? !d.ascending : true; // sort ascending by default, otherwise flip it.
+                const sortAscending = d.sorted ? !d.ascending : true; 
                 this.sortData(d.key, sortAscending, d.alterFunc);
-                // reset state
                 for (let header of this.headerData)
                 {
                     header.sorted = false;
                 }
-                // set new state for this node
                 d.sorted = true;
                 d.ascending = sortAscending;
                 this.drawTable();
@@ -323,7 +290,7 @@ class Table {
 
                 if (!ascend)
                 {
-                    [x, y] = [y, x] // swap variables
+                    [x, y] = [y, x];
                 }
                 if (alterFunc)
                 {
@@ -332,11 +299,11 @@ class Table {
                 }
                 if (x < y)
                 {
-                    return -1
+                    return -1;
                 }
                 else if (x > y)
                 {
-                    return 1
+                    return 1;
                 }
                 return 0;
             }

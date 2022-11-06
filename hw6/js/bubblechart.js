@@ -12,9 +12,19 @@ class Chart {
         const groupedData = d3.group(this.data, (d) => d.category);
         console.log(groupedData);
 
-        this.tooltip = d3.select("#bubbles").append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
+        // // Create tooltip div and make it invisible
+        // this.tooltip = d3.select("#bubbles").append("div")
+        //     .attr("class", "tooltip")
+        //     .style("opacity", 0.1);
+
+        // this.textTT = this.tooltip
+        //     .append('span')
+        //     .attr('class', 'tooltiptext');
+        
+
+        this.textCat = ['Economy/Fiscal issues', 'Energy/Environment', 'Crime/Justice', 'Education', 'Health Care', 'Mental Health/Substance Abuse'];
+        this.textCat2 = ['', '', '' , '' ,'', '']
+        this.positionCat = [-40, 85, 225, 345, 470, 620]
 
     //     // create a tooltip
     //     this.tooltip = d3.select("#chart")
@@ -56,26 +66,17 @@ class Chart {
 
         this.svg = d3.select("#chart")
             .attr("width", this.width);
-            //.attr("height", this.height);
 
         this.xScale = d3.scaleLinear()
             .domain([-50, 50])
             .range([this.margin.left, this.width - this.margin.left - this.margin.right]);
 
-
-        // Create tooltip div and make it invisible
-        this.tooltip = d3.select("#bubble").append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
-
+        // color scale
         this.colors = d3.scaleOrdinal()
             .domain(this.data.map( (d,i) => d.category[i] ))
             .range(['#ff50b3', '#a2ff50', '#9FE2BF', '#FF7F50', '#6495ED', '#CCCCFF']);
 
-        // this.colors = d3.scaleOrdinal()
-        //     // .domain(["asia", "africa", "northAmerica", "europe", "southAmerica", "oceania"])
-        //     .domain(this.groupedData.map(d => d.category))
-        //     .range(['#D81B60','#1976D2','#388E3C','#FBC02D','#E64A19','#455A64']);
+        //console.log(this.colors)
 
         this.drawLegend();
         this.circles();
@@ -88,17 +89,13 @@ class Chart {
                     this.updateCircles();
                     console.log(this.chartState);
                     this.chartState === true;
-                    // this.chartState = True;
                 }
                 else if (this.chartState === true){
                     this.updateCircles();
                     console.log(this.chartState);
                     this.chartState = false;
-                    // this.chartState = False;
                 }
             });
-
-        //this.colorScale();       
     }
 
     drawLegend(){
@@ -134,11 +131,9 @@ class Chart {
             .attr('y2', this.margin.bottom*3 - 5)
             .attr('stroke', 'black')
             .attr('stoke-width', 0.1);
-        
     }
 
     updateCircles(){
-
         if (this.chartState === true) {
             this.svg
                 .select('#bubbles')
@@ -153,6 +148,17 @@ class Chart {
                 .style('stroke-width', 2)
                 .style('stroke', 'darkgrey')
                 .style('fill', 'none');
+
+            this.svg
+                .select('#textIn')
+                .selectAll('text')
+                .data(this.textCat2)
+                .join('text')
+                .transition()
+                .duration(3600)
+                .text(d => d)
+                .attr('x', this.margin.left - 10)
+                .attr('y', (_, i) => this.positionCat[i] );
         }
         else if (this.chartState === false){
             this.svg
@@ -169,37 +175,16 @@ class Chart {
                 .style('stroke', 'darkgrey')
                 .style('fill', 'none');
 
-            // this.svg
-            //     .select('#bubbles')
-            //     .selectAll('text')
-            //     .join('text')
-            //     .transition()
-            //     .duration(3600)
-                //.append('text')
-                // .text(this.data, (d) => {
-                //     if (d.category === 'crime/justice') {
-                //         return 'Crime/Justice';
-                //     }
-                //     else if (d.category === 'economy/fiscal issues') {
-                //         return 'Economy/Fiscal issues';
-                //     }
-                //     else if (d.category === 'education') {
-                //         return 'Education';
-                //     }
-                //     else if (d.category === 'energy/environment') {
-                //         return 'Energy/Environment';
-                //     }
-                //     else if (d.category === 'health care') {
-                //         return 'Health Care';
-                //     }
-                //     else if (d.category === 'Mental Health/Substance Abuse') {
-                //         return 'Mental Health/Substance Abuse';
-                //     }
-                // })
-                // .text(this.data, (d) => d.category)
-                // .attr('x', this.margin.left)
-                // .attr('y', d => (d.moveY) - 10);
-                // .attr('y', (d, i) => d.moveY[i]);
+            this.svg
+                .select('#textIn')
+                .selectAll('text')
+                .data(this.textCat)
+                .join('text')
+                .transition()
+                .duration(3600)
+                .text(d => d)
+                .attr('x', this.margin.left - 10)
+                .attr('y', (_, i) => this.positionCat[i] );
         }
 
         this.svg

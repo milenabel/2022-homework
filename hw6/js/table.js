@@ -6,16 +6,20 @@ class Table {
     constructor(data) {
         this.data = data;
         this.tableData = [...data];
+    
         this.filteredData = this.data.filter(d => [d.phrase, d.percent_of_d_speeches, d.percent_of_r_speeches, d.total]);
         this.colors = d3.scaleOrdinal()
             .domain(this.data.map( (d,i) => d.category[i] ))
             .range(['#ff50b3', '#a2ff50', '#9FE2BF', '#FF7F50', '#6495ED', '#CCCCFF']);
-        // add useful attributes
-        // for (let forecast of this.tableData)
-        // {
-        //     forecast.isForecast = true;
-        //     forecast.isExpanded = false;
-        // }
+
+        // this.data.forEach((d, i) => {
+        //     return (i["sum"] = d.percent_of_d_speeches + d.percent_of_r_speeches);
+        // });
+
+        // this.data[sum] = this.data[percent_of_d_speeches] + this.data[percent_of_r_speeches]  
+        // (d => d.percent_of_d_speeches + d.percent_of_r_speeches);
+        //console.log(this.data['sum']);
+
         this.headerData = [
             {
                 sorted: false,
@@ -25,22 +29,23 @@ class Table {
             {
                 sorted: false,
                 ascending: false,
-                key: 'total'/50,
-                alterFunc: d => Math.abs(+d)
+                key: 'total',
+                alterFunc: d => Math.abs(+d/50)
             },
             {
                 sorted: false,
                 ascending: false,
-                key: 'percent_of_d_speeches',
+                key: 'sum',
                 alterFunc: d => Math.abs(+d)
             },
             {
                 sorted: false,
                 ascending: false,
                 key: 'total',
-                alterFunc: d => +d
+                alterFunc: d => Math.abs(+d)
             },
         ]
+        console.log(this.headerData);
 
         this.vizWidth = 300;
         this.vizHeight = 30;
@@ -57,6 +62,7 @@ class Table {
 
         this.attachSortHandlers();
         this.drawLegend();
+        this.drawTable();
     }
 
     drawLegend() {
@@ -116,33 +122,100 @@ class Table {
     }
 
     drawTable() {
-        this.updateHeaders();
+        // this.updateHeaders();
         let rowSelection = d3.select('#predictionTableBody')
             .selectAll('tr')
-            .data(this.data)
+            .data(this.data)    
             .join('tr');
+            //.each((d,i) => console.log(d, i));
 
-        let selection = rowSelection.selectAll('td')
+        let transformSelection = rowSelection.selectAll('td')
             .data(this.rowToCellDataTransform)
             .join('td')
-            .attr('class', d => d.phrase);
+            .attr('class', d => d.class);
 
-        //let vizSelection = selection.filter(d => d.type === 'viz');
+        //console.log(transformSelection)
 
-        let svgSelect = selection.selectAll('svg')
+        transformSelection.filter(d => d.type === 'text').text(d => d.value);
+
+        let vizSelection = transformSelection.filter(d => d.type === 'viz');
+
+        // let svgSelection = vizSelection.selectAll('td')
+        //     .data(d => [d, d, d, d])
+        //     .join('td')
+        //     .attr('class', d => d.phrase)
+        //     .text('');
+
+        let svgSelect = vizSelection.selectAll('svg')
             .data(d => [d])
             .join('svg')
             .attr('width', this.vizWidth)
             .attr('height', this.vizHeight);
 
-        let grouperSelect = svgSelect.selectAll('g')
-            .data(d => [d, d, d, d])
+        let grouperSelect = vizSelection
+            .filter((d,i) => i === 1)
+            .selectAll('svg')
+            .selectAll('g')
+            // .filter((d,i) => i === 1)
+            .data(d => [d, d])
             .join('g');
 
-        this.addPhrase(grouperSelect.filter((d,i) => i === 0));
-        this.addFreq(grouperSelect.filter((d,i) => i === 1));
-        this.addPercent(grouperSelect.filter((d,i) => i === 2));
-        this.addTotal(grouperSelect.filter((d,i) => i === 3));
+        // let grouperSelect = vizSelection
+        //     .selectAll('svg')
+        //     .data(d => [d])
+        //     .filter((d,i) => i === 1)
+        //     .selectAll('g')
+        //     .data(d => [d, d])
+        //     .join('g');
+        //this.addPhrase(grouperSelect.filter((d,i) => i === 0));
+        this.addFreq(vizSelection.filter((d,i) => i === 0));
+        // this.addPercentRed(grouperSelect.filter((d,i) => i === 1));
+        this.addPercentBlue(grouperSelect.filter((d,i) => i === 0));
+        this.addPercentRed(grouperSelect.filter((d,i) => i === 1));
+        // this.addFreq(vizSelection.selectAll('.freq'));
+        // this.addPercent(vizSelection.selectAll('.perc'));
+        
+        //this.addTotal(grouperSelect.filter((d,i) => i === 3));
+
+        // this.addFreq(svgSelect);
+        // this.addPercent(svgSelect.filter((d,i) => i === 2));
+    }
+
+    rowToCellDataTransform(d) {
+        let phraseInfo = {
+            type: 'text',
+            class: '',
+            value: d.phrase
+        };
+
+        let freqInfo = {
+            type: 'viz',
+            class: 'freq',
+            value: {
+                marginLow: 0,
+                //margin: d.isForecast ? -(+d.mean_netpartymargin) : d.margin,
+                marginHigh: d.total/50,
+            }
+        };
+
+        let percInfo = {
+            type: 'viz',
+            class: 'perc',
+            value: {
+                marginLow: -d.percent_of_d_speeches,
+                //margin: d.isForecast ? -(+d.mean_netpartymargin) : d.margin,
+                marginHigh: -d.percent_of_r_speeches,
+            }
+        };
+
+        let totalInfo = {
+            type: 'text',
+            class: '',
+            value: d.total
+        };
+
+        let dataList = [phraseInfo, freqInfo, percInfo, totalInfo];
+        return dataList;
     }
 
     updateHeaders() {
@@ -162,59 +235,91 @@ class Table {
             .classed('fa-sort-down', d => !d.ascending);
     }
 
-    addPhrase(containerSelect){
-        containerSelect.selectAll('td')
-            // .data(this.data, d=>d.phrase)
-            .data(d => d.phrase)
-            .enter()
-            .append('td');
-    }
+    // addPhrase(containerSelect){
+    //     containerSelect
+    //         .selectAll('td')
+    //         .data(d => d.phrase)
+    //         .join();
+    // }
 
     addFreq(containerSelect){
         const heightPercent = 2/3;
         const padPercent = (1 - heightPercent) / 2;
-        containerSelect.selectAll('rect')
-        .data(d => {
-            return [0, (d.total/50)]
-        })
-        .join('rect')
-        .attr('x', d => this.scaleX1(d[0]))
-        .attr('y', this.vizHeight * padPercent)
-        .attr('width', d => this.scaleX1(d[1]) - this.scaleX1(d[0]))
-        .attr('height', this.vizHeight * heightPercent)
-        .attr('fill', (d, i) => this.colors(d.category))
-        .classed('margin-bar', true);
+        let i = -1
+        containerSelect.select('svg')
+        for (const container of containerSelect) {
+            i++
+            d3.select(container)
+                .select('svg')
+                .attr('class', 'frec')
+                .selectAll('rect')
+                .data([this.data[i]])
+                .join('rect')
+                .attr('x', this.margin)
+                .attr('y', this.vizHeight * padPercent)
+                .attr('width', d => this.scaleX1(+d['total']/50) - this.margin)
+                .attr('height', this.vizHeight * heightPercent)
+                .attr('fill', (d, i) => this.colors(d.category))
+                .classed('margin-bar', true);
+        }
 
         // containerSelect.selectAll('rect').remove();
     }
 
-    addPercent(containerSelect){
+    addPercentBlue(containerSelect){
         const heightPercent = 2/3;
         const padPercent = (1 - heightPercent) / 2;
-        containerSelect.selectAll('rect')
-            .data(d => {
-                return [[d.percent_of_d_speeches, 0], [0, d.percent_of_r_speeches]]
-            })
-            .join('rect')
-            .attr('x', d => this.scaleX2(d[0]))
-            .attr('y', this.vizHeight * padPercent)
-            .attr('width', d => this.scaleX2(d[1]) - this.scaleX2(d[0]))
-            .attr('height', this.vizHeight * heightPercent)
-            .classed('biden', d => d[0] < 0)
-            .classed('trump', d => d[1] > 0)
-            .classed('margin-bar', true);
+        let i = -1
+        containerSelect.select('g')
+        for (const container of containerSelect) {
+            i++
+            d3.select(container)
+                //.select('g')
+                .selectAll('rect')
+                .data([this.data[i]])
+                .join('rect')
+                // .attr('class', 'perc')
+                // .attr('x', d => console.log(d))
+                .attr('x', d => this.scaleX2(0) - Math.abs(this.scaleX2(0) - this.scaleX2(+d.percent_of_d_speeches)))
+                .attr('y', this.vizHeight * padPercent)
+                .attr('width', d => Math.abs(this.scaleX2(0) - this.scaleX2(+d.percent_of_d_speeches)))
+                .attr('height', this.vizHeight * heightPercent)
+                .attr('fill', 'steelblue')
+                .classed('perc', true);
+        }
+    }
+
+    addPercentRed(containerSelect){
+        const heightPercent = 2/3;
+        const padPercent = (1 - heightPercent) / 2;
+        let i = -1
+        containerSelect.select('g')
+        for (const container of containerSelect) {
+            i++
+            //console.log(container)
+            d3.select(container)
+                //.select('g')
+                .selectAll('rect')
+                .data([this.data[i]])
+                .join('rect')
+                .attr('x', this.scaleX2(0))
+                .attr('y', this.vizHeight * padPercent)
+                .attr('width', d => Math.abs(this.scaleX2(0) - this.scaleX2(+d.percent_of_r_speeches) - 1))
+                .attr('height', this.vizHeight * heightPercent)
+                .attr('fill', 'firebrick')
+                .classed('margin-bar', true)
+                .classed('perc', true);
+        }
 
         // containerSelect.selectAll('rect').remove();
     }
 
-    addTotal(containerSelect){
-        containerSelect.selectAll('td')
-            // .data(this.data, d => d.total)
-            .data(d => d.total)
-            .enter()
-            .append('td');
-        
-    }
+    // addTotal(containerSelect){
+    //     containerSelect.selectAll('td')
+    //         // .data(this.data, d => d.total)
+    //         .data(d => d.total)
+    //         .join();
+    // }
 
     attachSortHandlers() 
     {

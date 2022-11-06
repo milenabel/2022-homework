@@ -175,30 +175,30 @@ class Chart {
             //     .join('text')
             //     .transition()
             //     .duration(3600)
-            //     //.append('text')
-            //     // .text(this.data, (d, i) => {
-            //     //     if d.category[i] === 'crime/justice' {
-            //     //         return 'Crime/Justice';
-            //     //     }
-            //     //     else if d.category[i] === 'economy/fiscal issues' {
-            //     //         return 'Economy/Fiscal issues';
-            //     //     }
-            //     //     else if d.category[i] === 'education' {
-            //     //         return 'Education';
-            //     //     }
-            //     //     else if d.category[i] === 'energy/environment' {
-            //     //         return 'Energy/Environment';
-            //     //     }
-            //     //     else if d.category[i] === 'health care' {
-            //     //         return 'Health Care';
-            //     //     }
-            //     //     else if d.category[i] === 'Mental Health/Substance Abuse' {
-            //     //         return 'Mental Health/Substance Abuse';
-            //     //     }
-            //     // })
-            //     .text(this.data, (d, i) => d.category[i])
-            //     .attr('x', this.margin.left)
-            //     .attr('y', 50);
+                //.append('text')
+                // .text(this.data, (d) => {
+                //     if (d.category === 'crime/justice') {
+                //         return 'Crime/Justice';
+                //     }
+                //     else if (d.category === 'economy/fiscal issues') {
+                //         return 'Economy/Fiscal issues';
+                //     }
+                //     else if (d.category === 'education') {
+                //         return 'Education';
+                //     }
+                //     else if (d.category === 'energy/environment') {
+                //         return 'Energy/Environment';
+                //     }
+                //     else if (d.category === 'health care') {
+                //         return 'Health Care';
+                //     }
+                //     else if (d.category === 'Mental Health/Substance Abuse') {
+                //         return 'Mental Health/Substance Abuse';
+                //     }
+                // })
+                // .text(this.data, (d) => d.category)
+                // .attr('x', this.margin.left)
+                // .attr('y', d => (d.moveY) - 10);
                 // .attr('y', (d, i) => d.moveY[i]);
         }
 

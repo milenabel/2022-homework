@@ -1,14 +1,20 @@
+
+@font-face {
+    font-family: 'font1';
+    src: url('assets/font1.ttf');
+}
+
 .column {
     float: left;
     width: 50%;
   }
   
   /* Clear floats after the columns */
-  .row:after {
+.row:after {
     content: "";
     display: table;
     clear: both;
-  }
+}
 
 .header {
     width: 600px;
@@ -80,7 +86,8 @@ th:first-of-type {
 }
 
 th {
-    font-weight: normal;
+    font-weight: bold;
+    font-size: 1.2em;
     text-align: center;
     padding-right: 6px;
     min-width: 125px;
@@ -102,6 +109,10 @@ td {
 td:last-of-type
 {
     text-align: right;
+}
+
+* {
+    font-family: 'font1';
 }
 
 .sorting {

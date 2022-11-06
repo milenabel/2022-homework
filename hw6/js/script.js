@@ -21,6 +21,10 @@ function fetchJSONFile (path, callback) {
   // call fetchJSONFile then build and render a tree
   // this is the function executed as a callback when parsing is done
   fetchJSONFile('data/words.json', function (data) {
+    data = data.map(d => ({
+        ...d,
+        sum: +d.percent_of_d_speeches + +d.percent_of_r_speeches
+    }))
     const chart = new Chart(data);
     console.log(data);
     // chart.buildTree();

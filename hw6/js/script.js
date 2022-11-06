@@ -1,9 +1,3 @@
-/**
-* Requests the file and executes a callback with the parsed result once
-* it is available
-* @param {string} path - The path to the file.
-* @param {function} callback - The callback function to execute once the result is available
-*/
 function fetchJSONFile (path, callback) {
     const httpRequest = new XMLHttpRequest();
     httpRequest.onreadystatechange = function () {
@@ -18,9 +12,8 @@ function fetchJSONFile (path, callback) {
     httpRequest.send();
   }
   
-  // call fetchJSONFile then build and render a tree
-  // this is the function executed as a callback when parsing is done
   fetchJSONFile('data/words.json', function (data) {
+    // creating a column for use in table.js sorting for percentage column
     data = data.map(d => ({
         ...d,
         sum: +d.percent_of_d_speeches + +d.percent_of_r_speeches

@@ -12,14 +12,6 @@ class Table {
             .domain(this.data.map( (d,i) => d.category[i] ))
             .range(['#ff50b3', '#a2ff50', '#9FE2BF', '#FF7F50', '#6495ED', '#CCCCFF']);
 
-        // this.data.forEach((d, i) => {
-        //     return (i["sum"] = d.percent_of_d_speeches + d.percent_of_r_speeches);
-        // });
-
-        // this.data[sum] = this.data[percent_of_d_speeches] + this.data[percent_of_r_speeches]  
-        // (d => d.percent_of_d_speeches + d.percent_of_r_speeches);
-        //console.log(this.data['sum']);
-
         this.headerData = [
             {
                 sorted: false,
@@ -127,24 +119,15 @@ class Table {
             .selectAll('tr')
             .data(this.data)    
             .join('tr');
-            //.each((d,i) => console.log(d, i));
 
         let transformSelection = rowSelection.selectAll('td')
             .data(this.rowToCellDataTransform)
             .join('td')
             .attr('class', d => d.class);
 
-        //console.log(transformSelection)
-
         transformSelection.filter(d => d.type === 'text').text(d => d.value);
 
         let vizSelection = transformSelection.filter(d => d.type === 'viz');
-
-        // let svgSelection = vizSelection.selectAll('td')
-        //     .data(d => [d, d, d, d])
-        //     .join('td')
-        //     .attr('class', d => d.phrase)
-        //     .text('');
 
         let svgSelect = vizSelection.selectAll('svg')
             .data(d => [d])
@@ -156,29 +139,12 @@ class Table {
             .filter((d,i) => i === 1)
             .selectAll('svg')
             .selectAll('g')
-            // .filter((d,i) => i === 1)
             .data(d => [d, d])
             .join('g');
 
-        // let grouperSelect = vizSelection
-        //     .selectAll('svg')
-        //     .data(d => [d])
-        //     .filter((d,i) => i === 1)
-        //     .selectAll('g')
-        //     .data(d => [d, d])
-        //     .join('g');
-        //this.addPhrase(grouperSelect.filter((d,i) => i === 0));
         this.addFreq(vizSelection.filter((d,i) => i === 0));
-        // this.addPercentRed(grouperSelect.filter((d,i) => i === 1));
         this.addPercentBlue(grouperSelect.filter((d,i) => i === 0));
         this.addPercentRed(grouperSelect.filter((d,i) => i === 1));
-        // this.addFreq(vizSelection.selectAll('.freq'));
-        // this.addPercent(vizSelection.selectAll('.perc'));
-        
-        //this.addTotal(grouperSelect.filter((d,i) => i === 3));
-
-        // this.addFreq(svgSelect);
-        // this.addPercent(svgSelect.filter((d,i) => i === 2));
     }
 
     rowToCellDataTransform(d) {

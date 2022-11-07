@@ -3,9 +3,10 @@ class Table {
 //     /**
 //      * Creates a Table Object
 //      */
-    constructor(data) {
-        this.data = data;
-        this.tableData = [...data];
+    constructor(globalApplicationState) {
+        this.globalApplicationState = globalApplicationState
+        this.data = globalApplicationState.data;
+        this.tableData = [...globalApplicationState.data];
     
         this.filteredData = this.data.filter(d => [d.phrase, d.percent_of_d_speeches, d.percent_of_r_speeches, d.total]);
         this.colors = d3.scaleOrdinal()
@@ -114,6 +115,7 @@ class Table {
     }
 
     drawTable() {
+        this.data = [...this.data]
         this.updateHeaders();
         let rowSelection = d3.select('#predictionTableBody')
             .selectAll('tr')

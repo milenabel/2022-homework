@@ -187,6 +187,10 @@ td {
 #predictionTable tbody tr {
     cursor: pointer;
 }
+#textIn {
+    /* color: rgba(169, 169, 169, 0.641); */
+    fill: rgb(100, 99, 99);
+}
 
 tbody tr:hover {
     background-color: #efefef;
